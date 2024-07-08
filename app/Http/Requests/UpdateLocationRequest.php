@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateStaffRequest extends FormRequest
+class UpdateLocationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,13 +24,11 @@ class CreateStaffRequest extends FormRequest
     public function rules()
     {
         return [
-            'fullName' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-            'phoneNumber' => 'required',
-            'department_id' => 'required|exists:departments,id',
-            'role_id' => 'required|exists:roles,id',
-            'location_id' => 'nullable|exists:locations,id',
+            'location_name' => 'nullable',
+            'address' => 'nullable',
+            'phoneNumber' => 'nullable',
+            'route_id' => 'nullable|exists:routes,id',
+            'store_code' => 'nullable|unique:locations,store_code',
         ];
     }
 }

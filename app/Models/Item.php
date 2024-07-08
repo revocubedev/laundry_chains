@@ -42,7 +42,6 @@ class Item extends Model
     }
 
     protected $fillable = [
-        'tagid',
         'product_id',
         'product_option_id',
         'customer_id',
@@ -55,7 +54,7 @@ class Item extends Model
     {
         parent::boot();
         static::creating(function ($model) {
-            $model->uuid = Str::uuid()->toString();
+            $model->tagId = Str::uuid()->toString();
         });
     }
 }

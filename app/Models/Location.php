@@ -10,6 +10,14 @@ class Location extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'location_name',
+        'address',
+        'phone_number',
+        'route_id',
+        'store_code'
+    ];
+
     protected static function boot()
     {
         parent::boot();

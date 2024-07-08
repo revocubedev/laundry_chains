@@ -10,6 +10,11 @@ class Routes extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'route_name',
+        'staff_id'
+    ];
+
     protected static function boot()
     {
         parent::boot();
