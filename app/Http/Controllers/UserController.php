@@ -27,12 +27,9 @@ class UserController extends Controller
         return response()->json($response);
     }
 
-    public function create(CreateStaffRequest $request, $tenant)
+    public function create(CreateStaffRequest $request)
     {
-        Log::info([
-            "route" => $request->path(),
-            "tenant" => $tenant
-        ]);
+        $tenant = explode('/', $request->path())[0];
         $response = $this->service->create($request->validated(), $tenant);
 
         return response()->json($response);

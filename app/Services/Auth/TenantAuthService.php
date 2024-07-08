@@ -23,26 +23,21 @@ class TenantAuthService
             throw new BadRequestException('Email already exists');
         }
 
-        $tenantExists = Tenant::where('organisation_name', str_replace(' ', '_', strtolower($data['organisation_name'])))
-            ->first();
+        $formattedName = str_replace(' ', '_', strtolower($data['organisation_name']));
+
+        $tenantExists = Tenant::find($formattedName);
         if ($tenantExists) {
             throw new BadRequestException('Organisation already exists');
         }
 
-        $orgName = $data['organisation_name'];
-        $data['organisation_name'] = str_replace(' ', '_', strtolower($orgName));
-        $data['organisation_url'] = env('FRONTEND_URL') . '/' . $data['organisation_name'];
-        $data['tenancy_db_name'] = "tenant_" . $data['organisation_name'];
-        $data['tenancy_db_username'] = env('DB_USERNAME');
-        $data['tenancy_db_password'] = env('DB_PASSWORD');
 
         $tenantData = [
+            'id' => $formattedName,
             'email' => $data['email'],
             'full_name' => $data['full_name'],
-            'organisation_name' => str_replace(' ', '_', strtolower($data['organisation_name'])),
+            'organisation_name' => $data['organisation_name'],
             'organisation_email' => $data['organisation_email'],
-            'organisation_url' => env('FRONTEND_URL') . '/' . $data['organisation_name'],
-            'tenancy_db_name' => "tenant_" . $data['organisation_name'],
+            'organisation_url' => env('FRONTEND_URL') . '/' . $formattedName,
             'tenancy_db_username' => env('DB_USERNAME'),
             'tenancy_db_password' => env('DB_PASSWORD'),
         ];
@@ -52,8 +47,8 @@ class TenantAuthService
         $this->mailService->sendWelcomeEmail([
             'to' => $data['email'],
             'content' => [
-                'companyName' => $orgName,
-                'url' => env('FRONTEND_URL') . '/' . $data['organisation_name'] . '/login',
+                'companyName' => $tenantData['organisation_name'],
+                'url' => env('FRONTEND_URL') . '/' . $tenantData['id'] . '/login',
             ]
         ]);
 

@@ -67,20 +67,16 @@ class UserService
 
         $user = User::create($data);
 
-        $currentTenant = Tenant::where('organisation_name', $tenant)->first();
-
-        $orgName = ucwords(str_replace('_', ' ', $tenant));
+        $currentTenant = Tenant::find($tenant);
 
         $this->mailService->sendStaffAddEmail([
-            'from_email' => $currentTenant->organisation_email,
-            'from_name' => $orgName,
             'to' => $data['email'],
             'content' => [
-                'fullName' => $data['fullName'],
+                'fullName' => $data['full_name'],
                 'email' => $data['email'],
                 'password' => $password,
                 'staff_code' => $code,
-                'companyName' => $orgName,
+                'companyName' => $currentTenant->organisation_name,
                 'url' => $currentTenant->organisation_url
             ]
         ]);

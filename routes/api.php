@@ -3,9 +3,6 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\TenantAuthController;
-use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\UserController;
-use App\Http\Middleware\InitializeTenancyByPath;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,33 +19,12 @@ use App\Http\Middleware\InitializeTenancyByPath;
 //     return $request->user();
 // });
 
+Route::get('/', function () {
+    return response()->json(['message' => 'Laundry Chains API is up and running!']);
+});
+
 Route::group([
     'prefix' => 'auth'
 ], function () {
     Route::post('register', [TenantAuthController::class, 'registerTenant']);
-});
-
-// Tenant routes
-Route::group([
-    'prefix' => '/{tenant}',
-    'middleware' => InitializeTenancyByPath::class,
-], function () {
-    Route::group([
-        'prefix' => 'auth',
-        'controller' => AuthController::class,
-    ], function () {
-        Route::post('/login', 'login');
-        Route::post('/refresh', 'refreshToken');
-    });
-
-    Route::group([
-        'middleware' => [
-            // 'api',
-            'check.token'
-        ],
-        'controller' => UserController::class,
-    ], function () {
-        Route::post('/switch-user', 'switchUser');
-        Route::post('/user/create', 'create');
-    });
 });

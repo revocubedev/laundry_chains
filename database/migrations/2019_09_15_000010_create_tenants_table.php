@@ -16,12 +16,12 @@ class CreateTenantsTable extends Migration
     public function up(): void
     {
         Schema::create('tenants', function (Blueprint $table) {
-            $table->id();
+            $table->string('id')->primary();
             $table->string('email')->unique();
             $table->string('full_name');
             $table->string('organisation_name');
+            $table->string('organisation_email')->nullable();
             $table->string('organisation_url');
-            $table->string('tenancy_db_name')->unique();
             $table->string('tenancy_db_username');
             $table->string('tenancy_db_password')->nullable();
             $table->timestamps();

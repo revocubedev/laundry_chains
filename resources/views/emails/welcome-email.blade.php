@@ -27,7 +27,7 @@
     <p>Thank you again for choosing our platform!</p>
     <p>Click the button below to get started</p>
     <a href="{{ $url }}">
-        <button style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Get Started</button>
+        <button style="background-color: #4CAF50; color: #fff; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Get Started</button>
     </a>
 
     <p>Best regards,</p>

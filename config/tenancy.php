@@ -8,8 +8,8 @@ use App\Models\Tenant;
 
 return [
     'tenant_model' => Tenant::class,
-    // 'id_generator' => Stancl\Tenancy\UUIDGenerator::class,
-    'id_generator' => null,
+    'id_generator' => Stancl\Tenancy\UUIDGenerator::class,
+    // 'id_generator' => null,
 
     'domain_model' => Domain::class,
 
@@ -53,7 +53,7 @@ return [
          * Tenant database names are created like this:
          * prefix + tenant_id + suffix.
          */
-        'prefix' => 'tenant',
+        'prefix' => 'tenant_',
         'suffix' => '',
 
         /**

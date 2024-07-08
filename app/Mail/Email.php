@@ -29,8 +29,8 @@ class Email extends Mailable
      */
     public function build()
     {
-        $FROM_EMAIL = $this->data['from_email'] ?? env('MAIL_FROM_ADDRESS');
-        $FROM_NAME = $this->data['from_name'] ?? env('MAIL_FROM_NAME');
+        $FROM_EMAIL = env('MAIL_FROM_ADDRESS');
+        $FROM_NAME = env('MAIL_FROM_NAME');
         $subject = $this->data['subject'];
         $template = $this->data['template'];
         $content = $this->data['content'] ?? [];

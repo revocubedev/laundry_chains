@@ -11,12 +11,12 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     use HasDatabase;
 
     protected $fillable = [
+        'id',
         'email',
         'full_name',
         'organisation_name',
         'organisation_email',
         'organisation_url',
-        'tenancy_db_name',
         'tenancy_db_username',
         'tenancy_db_password',
     ];
@@ -30,7 +30,6 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'organisation_name',
             'organisation_email',
             'organisation_url',
-            'tenancy_db_name',
             'tenancy_db_username',
             'tenancy_db_password',
         ];

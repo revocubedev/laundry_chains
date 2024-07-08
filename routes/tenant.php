@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
 
@@ -24,7 +26,22 @@ Route::group([
         InitializeTenancyByPath::class,
     ],
 ], function () {
-    Route::get('/', function () {
-        return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
+    Route::group([
+        'prefix' => 'auth',
+        'controller' => AuthController::class,
+    ], function () {
+        Route::post('/login', 'login');
+        Route::post('/refresh', 'refreshToken');
+    });
+
+    Route::group([
+        'middleware' => [
+            // 'api',
+            'check.token'
+        ],
+        'controller' => UserController::class,
+    ], function () {
+        Route::post('/switch-user', 'switchUser');
+        Route::post('/user/create', 'create');
     });
 });

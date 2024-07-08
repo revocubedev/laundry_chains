@@ -20,8 +20,6 @@ class MailService
     public function sendStaffAddEmail($data)
     {
         $emailData = [
-            'from_email' => $data['from_email'],
-            'from_name' => $data['from_name'],
             'to' => $data['to'],
             'subject' => 'Your Login Credentials',
             'template' => 'emails.staff_addup',
