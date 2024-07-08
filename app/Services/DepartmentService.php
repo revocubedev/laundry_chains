@@ -28,4 +28,24 @@ class DepartmentService
 
         return $department;
     }
+
+    public function show($uuid)
+    {
+        $department = Department::where('uuid', $uuid)->first();
+        if (!$department) {
+            throw new NotFoundException('Department not found');
+        }
+
+        return $department;
+    }
+
+    public function delete($uuid)
+    {
+        $department = Department::where('uuid', $uuid)->first();
+        if (!$department) {
+            throw new NotFoundException('Department not found');
+        }
+
+        $department->delete();
+    }
 }

@@ -57,5 +57,15 @@ Route::group([
         Route::patch('/locations/{uuid}', [App\Http\Controllers\LocationController::class, "edit"]);
         Route::get('/locations/{uuid}', [App\Http\Controllers\LocationController::class, "show"]);
         Route::delete('/locations/{uuid}', [App\Http\Controllers\LocationController::class, "delete"]);
+
+        //departments
+        Route::get(
+            '/departments',
+            [App\Http\Controllers\DepartmentController::class, "index"]
+        );
+        Route::post('/departments', [App\Http\Controllers\DepartmentController::class, "create"]);
+        Route::get('/departments/{uuid}', [App\Http\Controllers\DepartmentController::class, "show"]);
+        Route::patch('/departments/{uuid}', [App\Http\Controllers\DepartmentController::class, "edit"]);
+        Route::delete('/departments/{uuid}', [App\Http\Controllers\DepartmentController::class, "delete"]);
     });
 });

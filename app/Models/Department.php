@@ -10,23 +10,13 @@ class Department extends Model
 {
     use HasFactory;
 
-    public function user()
-    {
-        return $this->hasMany(User::class);
-    }
-
-    public function itemHistory()
-    {
-        return $this->hasMany(ItemHistory::class);
-    }
-
     protected $fillable = [
         'uuid',
         'name',
         'scan_in',
         'scan_out',
         'action_options',
-        'default_action',
+        'default_options',
     ];
 
     protected static function boot()
@@ -35,5 +25,15 @@ class Department extends Model
         static::creating(function ($model) {
             $model->uuid = Str::uuid()->toString();
         });
+    }
+
+    public function user()
+    {
+        return $this->hasMany(User::class);
+    }
+
+    public function itemHistory()
+    {
+        return $this->hasMany(ItemHistory::class);
     }
 }
