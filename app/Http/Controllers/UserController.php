@@ -6,7 +6,6 @@ use App\Http\Requests\CreateStaffRequest;
 use App\Http\Requests\UpdateStaffRequest;
 use Illuminate\Http\Request;
 use App\Services\UserService;
-use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {

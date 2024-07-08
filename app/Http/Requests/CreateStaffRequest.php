@@ -27,7 +27,7 @@ class CreateStaffRequest extends FormRequest
             'fullName' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
-            'phoneNumber' => 'required',
+            'phoneNumber' => 'nullable',
             'department_id' => 'required|exists:departments,id',
             'role_id' => 'required|exists:roles,id',
             'location_id' => 'nullable|exists:locations,id',

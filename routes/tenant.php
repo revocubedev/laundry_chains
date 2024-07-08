@@ -37,7 +37,7 @@ Route::group([
         'middleware' => 'check.token',
     ], function () {
         //staff aka users
-        Route::post('/switch-user', [App\Http\Controllers\UserController::class, "switchUser"]);
+        Route::post('/users/switch', [App\Http\Controllers\UserController::class, "switchUser"]);
         Route::get('/users', [App\Http\Controllers\UserController::class, "index"]);
         Route::get('/users/{uuid}', [App\Http\Controllers\UserController::class, "details"]);
         Route::post('/users', [App\Http\Controllers\UserController::class, "create"])->middleware("staff.permission:create-user");

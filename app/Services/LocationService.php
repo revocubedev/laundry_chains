@@ -10,7 +10,7 @@ class LocationService
     public function index()
     {
         return Location::join('routes', 'routes.id', '=', 'locations.route_id')
-            ->select('locations.id', 'locations.uuid', 'locations.location_name', 'locations.address', 'locations.store_code', 'locations.phoneNumber', 'routes.route_name', 'routes.id as route_id')
+            ->select('locations.id', 'locations.uuid', 'locations.locationName', 'locations.address', 'locations.store_code', 'locations.phoneNumber', 'routes.route_name', 'routes.id as route_id')
             ->get();
     }
 

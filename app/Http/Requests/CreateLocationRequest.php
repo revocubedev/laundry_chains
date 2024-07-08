@@ -24,7 +24,7 @@ class CreateLocationRequest extends FormRequest
     public function rules()
     {
         return [
-            'location_name' => 'required',
+            'locationName' => 'required',
             'address' => 'required',
             'phoneNumber' => 'required',
             'route_id' => 'required|exists:routes,id',

@@ -130,7 +130,6 @@ class UserService
 
     public function edit($data, $uuid)
     {
-        $role = Role::find($data['role_id']);
         $user = User::where('uuid', $uuid)->first();
         if (!$user) {
             throw new NotFoundException('User not found');
@@ -141,6 +140,7 @@ class UserService
         }
 
         if (isset($data['role_id'])) {
+            $role = Role::find($data['role_id']);
             $data['role'] = $role->name;
         }
 

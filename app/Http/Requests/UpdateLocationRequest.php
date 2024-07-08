@@ -24,7 +24,7 @@ class UpdateLocationRequest extends FormRequest
     public function rules()
     {
         return [
-            'location_name' => 'nullable',
+            'locationName' => 'nullable',
             'address' => 'nullable',
             'phoneNumber' => 'nullable',
             'route_id' => 'nullable|exists:routes,id',
