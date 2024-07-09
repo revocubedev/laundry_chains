@@ -36,6 +36,13 @@ Route::group([
     Route::group([
         'middleware' => 'check.token',
     ], function () {
+        // clock in
+        Route::get('/users/clockins', [App\Http\Controllers\ClockInController::class, "index"]);
+        Route::post('/users/clockin', [App\Http\Controllers\ClockInController::class, "clockin"]);
+        Route::post('/users/clockout', [App\Http\Controllers\ClockInController::class, "clockout"]);
+        Route::get('/users/clockin_history/{uuid}', [App\Http\Controllers\ClockInController::class, "clockin_history"]);
+        Route::get('/users/confirm_clockin/{uuid}', [App\Http\Controllers\ClockInController::class, "verify_clockin"]);
+
         //staff aka users
         Route::post('/users/switch', [App\Http\Controllers\UserController::class, "switchUser"]);
         Route::get('/users', [App\Http\Controllers\UserController::class, "index"]);

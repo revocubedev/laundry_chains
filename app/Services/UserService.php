@@ -38,7 +38,7 @@ class UserService
         ];
     }
 
-    public function index($search = null, $per_page = 50, $department_id = null)
+    public function index($search = null, $per_page = 50, $departmentId = null)
     {
         $users = User::join('departments', 'departments.id', '=', 'users.department_id')
             ->join('roles', 'roles.id', '=', 'users.role_id')
@@ -48,8 +48,8 @@ class UserService
                     ->orWhere('users.email', 'like', '%' . $search . '%')
                     ->orWhere('users.phoneNumber', 'like', '%' . $search . '%');
             })
-            ->when($department_id, function ($query) use ($department_id) {
-                return $query->where('users.department_id', $department_id);
+            ->when($departmentId, function ($query) use ($departmentId) {
+                return $query->where('users.department_id', $departmentId);
             })
             ->select(
                 'users.id',

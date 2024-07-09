@@ -37,7 +37,7 @@ class UserController extends Controller
         $data = $this->service->index(
             $request->query('search'),
             $request->query('per_page'),
-            $request->query('department_id')
+            $request->query('departmentId')
         );
 
         return response()->json([

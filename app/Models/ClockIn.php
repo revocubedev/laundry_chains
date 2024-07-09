@@ -16,13 +16,10 @@ class ClockIn extends Model
     }
 
     protected $fillable = [
-        'fullName',
-        'email',
-        'phoneNumber',
-        'password',
-        'department_id',
-        'location_id',
-        "staff_code"
+        'user_id',
+        'clockin_time',
+        'clockout_time',
+        'status',
     ];
 
     protected static function boot()
