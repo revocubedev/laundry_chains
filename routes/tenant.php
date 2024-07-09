@@ -43,7 +43,7 @@ Route::group([
         Route::get('/users/clockin_history/{uuid}', [App\Http\Controllers\ClockInController::class, "clockin_history"]);
         Route::get('/users/confirm_clockin/{uuid}', [App\Http\Controllers\ClockInController::class, "verify_clockin"]);
 
-        //staff aka users
+        // staff aka users
         Route::post('/users/switch', [App\Http\Controllers\UserController::class, "switchUser"]);
         Route::get('/users', [App\Http\Controllers\UserController::class, "index"]);
         Route::get('/users/{uuid}', [App\Http\Controllers\UserController::class, "details"]);
@@ -51,21 +51,21 @@ Route::group([
         Route::patch('/users/{uuid}', [App\Http\Controllers\UserController::class, "edit"]);
         Route::delete('/users/{uuid}', [App\Http\Controllers\UserController::class, "delete"]);
 
-        //Routes
+        // Routes
         Route::get('/routes', [App\Http\Controllers\RoutesController::class, "index"]);
         Route::post('/routes', [App\Http\Controllers\RoutesController::class, "create"]);
         Route::patch('/routes/{uuid}', [App\Http\Controllers\RoutesController::class, "edit"]);
         Route::get('/routes/{uuid}', [App\Http\Controllers\RoutesController::class, "show"]);
         Route::delete('/routes/{uuid}', [App\Http\Controllers\RoutesController::class, "delete"]);
 
-        //locations
+        // locations
         Route::get('/locations', [App\Http\Controllers\LocationController::class, "index"]);
         Route::post('/locations', [App\Http\Controllers\LocationController::class, "create"]);
         Route::patch('/locations/{uuid}', [App\Http\Controllers\LocationController::class, "edit"]);
         Route::get('/locations/{uuid}', [App\Http\Controllers\LocationController::class, "show"]);
         Route::delete('/locations/{uuid}', [App\Http\Controllers\LocationController::class, "delete"]);
 
-        //departments
+        // departments
         Route::get(
             '/departments',
             [App\Http\Controllers\DepartmentController::class, "index"]
@@ -74,5 +74,8 @@ Route::group([
         Route::get('/departments/{uuid}', [App\Http\Controllers\DepartmentController::class, "show"]);
         Route::patch('/departments/{uuid}', [App\Http\Controllers\DepartmentController::class, "edit"]);
         Route::delete('/departments/{uuid}', [App\Http\Controllers\DepartmentController::class, "delete"]);
+
+        // roles
+        Route::apiResource('roles', App\Http\Controllers\RoleController::class);
     });
 });
