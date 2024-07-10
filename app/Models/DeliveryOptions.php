@@ -10,6 +10,11 @@ class DeliveryOptions extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'name',
+        'amount'
+    ];
+
     //ADD A DELIVERY ID IN THE ORDERS
     public function order()
     {

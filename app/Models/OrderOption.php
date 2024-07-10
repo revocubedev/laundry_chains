@@ -10,6 +10,11 @@ class OrderOption extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'number_of_days',
+        'max_order_item'
+    ];
+
     protected static function boot()
     {
         parent::boot();

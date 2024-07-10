@@ -77,5 +77,15 @@ Route::group([
 
         // roles
         Route::apiResource('roles', App\Http\Controllers\RoleController::class);
+
+        // Delivery Options
+        Route::post('/delivery', [App\Http\Controllers\DeliveryOptionController::class, "create"]);
+        Route::patch('/delivery/{uuid}', [App\Http\Controllers\DeliveryOptionController::class, "edit"]);
+        Route::get('/delivery/{uuid}', [App\Http\Controllers\DeliveryOptionController::class, "getOne"]);
+        Route::get('/delivery', [App\Http\Controllers\DeliveryOptionController::class, "getAll"]);
+        Route::delete('/delivery/{uuid}', [App\Http\Controllers\DeliveryOptionController::class, "delete"]);
+        Route::post('/order_option', [App\Http\Controllers\DeliveryOptionController::class, "createOrderOption"]);
+        Route::get('/order_option', [App\Http\Controllers\DeliveryOptionController::class, "getOrderOption"]);
+        Route::patch('/order_option', [App\Http\Controllers\DeliveryOptionController::class, "editOrderOption"]);
     });
 });
