@@ -87,5 +87,18 @@ Route::group([
         Route::post('/order_option', [App\Http\Controllers\DeliveryOptionController::class, "createOrderOption"]);
         Route::get('/order_option', [App\Http\Controllers\DeliveryOptionController::class, "getOrderOption"]);
         Route::patch('/order_option', [App\Http\Controllers\DeliveryOptionController::class, "editOrderOption"]);
+
+        //items
+        Route::get('/item/settings', [App\Http\Controllers\ItemController::class, "getItemSetting"]);
+        Route::post('/item/settings', [App\Http\Controllers\ItemController::class, "addItemSetting"]);
+        Route::patch('/item/settings/color-brand', [App\Http\Controllers\ItemController::class, "addColorBrand"]);
+        Route::post('/item/damages', [App\Http\Controllers\ItemController::class, "createDamage"]);
+        Route::get('/item/damages', [App\Http\Controllers\ItemController::class, "getDamages"]);
+        Route::patch('/item/damages/{uuid}', [App\Http\Controllers\ItemController::class, "editDamage"]);
+        Route::delete('/item/damages/{uuid}', [App\Http\Controllers\ItemController::class, "deleteDamage"]);
+        Route::post('/item/pattern', [App\Http\Controllers\ItemController::class, "createPattern"]);
+        Route::get('/item/pattern', [App\Http\Controllers\ItemController::class, "getPattern"]);
+        Route::post('/item/pattern/{uuid}', [App\Http\Controllers\ItemController::class, "editPattern"]);
+        Route::delete('/item/pattern/{uuid}', [App\Http\Controllers\ItemController::class, "deletePattern"]);
     });
 });

@@ -10,6 +10,11 @@ class Damage extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        "short_code",
+        "full_version"
+    ];
+
     protected static function boot()
     {
         parent::boot();
