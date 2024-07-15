@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Exports;
+namespace App\Services\Helpers\Exports;
 
 use Maatwebsite\Excel\Concerns\FromArray;
 
@@ -12,16 +12,13 @@ class TotalInFactoryExports implements FromArray, WithHeadings
 {
 
 
-    public function array():array
+    public function array(): array
     {
-
     }
 
 
 
-    public function headings():array 
+    public function headings(): array
     {
-
     }
-
 }

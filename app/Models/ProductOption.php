@@ -10,6 +10,15 @@ class ProductOption extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'product_id',
+        'option_name',
+        'price',
+        'expressPrice',
+        'cost_price',
+        'pieces'
+    ];
+
     protected static function boot()
     {
         parent::boot();

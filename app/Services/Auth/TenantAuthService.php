@@ -74,7 +74,17 @@ class TenantAuthService
                 'password' => bcrypt($data['password']),
                 'role' => 'admin',
                 'role_id' => 1,
-                'permissions' => ["create-user"],
+                'permissions' => [
+                    "create-user",
+                    "edit-order",
+                    "edit-payment",
+                    "fund-wallet",
+                    "delete-order",
+                    "delete-customer",
+                    "add-customer",
+                    "view-dashboard",
+                    "create-product"
+                ],
                 'staff_code' => $code,
             ]);
         });

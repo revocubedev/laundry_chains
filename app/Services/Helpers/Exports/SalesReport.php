@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Exports;
+namespace App\Services\Helpers\Exports;
 
 use Carbon\Carbon;
-use App\Models\ItemHistory;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;

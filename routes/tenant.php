@@ -88,7 +88,7 @@ Route::group([
         Route::get('/order_option', [App\Http\Controllers\DeliveryOptionController::class, "getOrderOption"]);
         Route::patch('/order_option', [App\Http\Controllers\DeliveryOptionController::class, "editOrderOption"]);
 
-        //items
+        // items
         Route::get('/item/settings', [App\Http\Controllers\ItemController::class, "getItemSetting"]);
         Route::post('/item/settings', [App\Http\Controllers\ItemController::class, "addItemSetting"]);
         Route::patch('/item/settings/color-brand', [App\Http\Controllers\ItemController::class, "addColorBrand"]);
@@ -100,5 +100,31 @@ Route::group([
         Route::get('/item/pattern', [App\Http\Controllers\ItemController::class, "getPattern"]);
         Route::post('/item/pattern/{uuid}', [App\Http\Controllers\ItemController::class, "editPattern"]);
         Route::delete('/item/pattern/{uuid}', [App\Http\Controllers\ItemController::class, "deletePattern"]);
+
+        // item_history
+        Route::get('/item/getHistory/{transId}', [App\Http\Controllers\ItemHistoryController::class, "get_recent_history"]);
+        Route::get('/item/report/{transId}', [App\Http\Controllers\ItemHistoryController::class, "export"]);
+
+        //product_groups
+        Route::get('/product_groups', [App\Http\Controllers\ProductController::class, "get_product_groups"]);
+        Route::post('/product_group/add', [App\Http\Controllers\ProductController::class, "add_product_group"])->middleware("staff.permission:create-product");
+        Route::post('/product_group/edit/{uuid}', [App\Http\Controllers\ProductController::class, "edit_product_group"])->middleware("staff.permission:create-product");
+        Route::get('/product_group/single/{uuid}', [App\Http\Controllers\ProductController::class, "getSingleGroup"]);
+        Route::delete('/product_group/{uuid}', [App\Http\Controllers\ProductController::class, "delete_product_group"])->middleware("staff.permission:create-product");
+
+        //products
+        Route::get('/products', [App\Http\Controllers\ProductController::class, "index"]);
+        Route::get('/products/all', [App\Http\Controllers\ProductController::class, "all"]);
+        Route::get('/product/view/{uuid}', [App\Http\Controllers\ProductController::class, "getProduct"]);
+        Route::post('/product/create', [App\Http\Controllers\ProductController::class, "create"])->middleware("staff.permission:create-product");
+        Route::post('/product/edit/{uuid}', [App\Http\Controllers\ProductController::class, "edit"])->middleware("staff.permission:create-product");
+        Route::delete('/product/delete/{uuid}', [App\Http\Controllers\ProductController::class, "destroy"])->middleware("staff.permission:create-product");
+
+        //product_options
+        Route::get('/products_option', [App\Http\Controllers\ProductController::class, "getAllProductOption"]);
+        Route::get('/product_options/single/{product_id}', [App\Http\Controllers\ProductController::class, "get_product_options"]);
+        Route::post('/product_option/add', [App\Http\Controllers\ProductController::class, "add_product_option"])->middleware("staff.permission:create-product");
+        Route::post('/product_option/edit/{uuid}', [App\Http\Controllers\ProductController::class, "edit_product_option"])->middleware("staff.permission:create-product");
+        Route::delete('/product_option/delete/{uuid}', [App\Http\Controllers\ProductController::class, "delete_product_option"])->middleware("staff.permission:create-product");
     });
 });

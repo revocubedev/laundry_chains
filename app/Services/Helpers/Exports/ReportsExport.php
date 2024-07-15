@@ -1,13 +1,10 @@
 <?php
 
-namespace App\Exports;
+namespace App\Services\Helpers\Exports;
 
-use App\Models\Order;
-use App\Models\Transaction;
 use App\Models\ItemHistory;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Illuminate\Support\Collection;
 
 class ReportsExport implements FromCollection
 {

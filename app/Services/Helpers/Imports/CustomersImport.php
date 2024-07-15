@@ -1,15 +1,14 @@
 <?php
 
-namespace App\Imports;
+namespace App\Services\Helpers\Imports;
 
 use Illuminate\Support\Str;
 use App\Models\Customer;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use App\Services\Gen;
-use Illuminate\Support\Facades\Log;
 
-class CustomersImport implements ToModel, withHeadingRow {
+class CustomersImport implements ToModel, withHeadingRow
+{
     /**
      * @param array $row
      *
@@ -18,7 +17,8 @@ class CustomersImport implements ToModel, withHeadingRow {
     protected $generat;
 
 
-    public function model(array $row) {
+    public function model(array $row)
+    {
         $uuid = Str::uuid()->toString();
         return new Customer([
             'uuid' => $uuid,

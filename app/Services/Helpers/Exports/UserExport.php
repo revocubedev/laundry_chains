@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Exports;
+namespace App\Services\Helpers\Exports;
 
 use App\Models\User;
 
@@ -8,16 +8,14 @@ use Maatwebsite\Excel\Concerns\FromArray;
 
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
-use Session;
-
 class UserExport implements FromArray, WithHeadings
 {
-    public function array():array
+    public function array(): array
     {
         $users = User::join('departments', 'departments.id', '=', 'users.department_id')
-        ->join('roles', 'roles.id', '=', 'users.role_id')
-        ->select('users.id', 'users.uuid', 'users.fullName', 'users.email', 'users.phoneNumber', 'roles.name as user_role', 'users.department_id', 'departments.name as department_name')
-        ->get();
+            ->join('roles', 'roles.id', '=', 'users.role_id')
+            ->select('users.id', 'users.uuid', 'users.fullName', 'users.email', 'users.phoneNumber', 'roles.name as user_role', 'users.department_id', 'departments.name as department_name')
+            ->get();
 
         $data = [];
 
@@ -37,16 +35,16 @@ class UserExport implements FromArray, WithHeadings
 
 
 
-    public function headings():array 
+    public function headings(): array
     {
         $users = User::join('departments', 'departments.id', '=', 'users.department_id')
-        ->join('roles', 'roles.id', '=', 'users.role_id')
-        ->select('users.id', 'users.uuid', 'users.fullName', 'users.email', 'users.phoneNumber', 'roles.name as user_role', 'users.department_id', 'departments.name as department_name')
-        ->get();
+            ->join('roles', 'roles.id', '=', 'users.role_id')
+            ->select('users.id', 'users.uuid', 'users.fullName', 'users.email', 'users.phoneNumber', 'roles.name as user_role', 'users.department_id', 'departments.name as department_name')
+            ->get();
 
         $data = [];
 
-        for($i=0; $i < count($users); $i++) {
+        for ($i = 0; $i < count($users); $i++) {
             $data[$i] = [
                 'uuid' => $user[$i]->uuid,
                 'fullName' => $user[$i]->fullName,

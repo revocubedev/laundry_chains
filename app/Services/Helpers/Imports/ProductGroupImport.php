@@ -1,22 +1,20 @@
 <?php
 
-namespace App\Imports;
-
+namespace App\Services\Helpers\Imports;
 
 use Illuminate\Support\Str;
 use App\Models\ProductOption;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\ToCollection;
-use Illuminate\Support\Facades\Log;
 
 class ProductGroupImport implements ToModel, withHeadingRow //Import Product Options
 {
     /**
      * @param Collection $collection
      */
-    public function model(array $row) {
+    public function model(array $row)
+    {
         $uuid = Str::uuid()->toString();
         return new ProductOption([
             'product_id' => $row['product_id'],

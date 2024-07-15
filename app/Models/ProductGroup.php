@@ -10,11 +10,20 @@ class ProductGroup extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        "group_name"
+    ];
+
     protected static function boot()
     {
         parent::boot();
         static::creating(function ($model) {
             $model->uuid = Str::uuid()->toString();
         });
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
     }
 }

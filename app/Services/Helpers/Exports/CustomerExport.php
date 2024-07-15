@@ -1,11 +1,7 @@
 <?php
 
-namespace App\Exports;
+namespace App\Services\Helpers\Exports;
 
-use App\Models\Order;
-use App\Models\Customer;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;

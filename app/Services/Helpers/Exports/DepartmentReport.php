@@ -1,26 +1,28 @@
 <?php
 
-namespace App\Exports;
+namespace App\Services\Helpers\Exports;
 
 use Carbon\Carbon;
-use App\Models\ItemHistory;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class DepartmentReport implements FromCollection, WithHeadings, ShouldAutoSize {
+class DepartmentReport implements FromCollection, WithHeadings, ShouldAutoSize
+{
     /**
      * @return \Illuminate\Support\Collection
      */
     protected $parameter_one;
     //protected $parameter_two;
 
-    public function __construct($parameter_one) {
+    public function __construct($parameter_one)
+    {
         $this->parameter_one = $parameter_one;
         //$this->parameter_two = $parameter_two;
     }
 
-    public function headings(): array {
+    public function headings(): array
+    {
         return [
             'Tag number',
             'Order ID',
@@ -38,7 +40,8 @@ class DepartmentReport implements FromCollection, WithHeadings, ShouldAutoSize {
         ];
     }
 
-    public function collection() {
+    public function collection()
+    {
         return collect($this->parameter_one)->map(function ($prop) {
             return [
                 'Tag number' => $prop["scannedIn"] ? $prop["scannedIn"]['tagId'] : $prop["scannedOut"]['tagId'],

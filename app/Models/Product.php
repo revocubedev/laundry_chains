@@ -44,8 +44,8 @@ class Product extends Model
     }
 
     protected $fillable = [
-        'uuid',
         'name',
+        'product_group_id',
         'avatar'
     ];
 }
