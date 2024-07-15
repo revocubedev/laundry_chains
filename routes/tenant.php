@@ -135,5 +135,8 @@ Route::group([
         Route::get('/transaction/view/{tag_id}', [App\Http\Controllers\TransactionController::class, "view"]);
         Route::post('/transaction/edit', [App\Http\Controllers\TransactionController::class, "edit"]);
         Route::post('/transaction/delete', [App\Http\Controllers\TransactionController::class, "delete"]);
+
+        //Outbound
+        Route::post('/outbound/{item_id}', [App\Http\Controllers\OutboundController::class, "handleOrderItems"]);
     });
 });
