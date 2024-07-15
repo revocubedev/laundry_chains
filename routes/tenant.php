@@ -102,7 +102,10 @@ Route::group([
         Route::delete('/item/pattern/{uuid}', [App\Http\Controllers\ItemController::class, "deletePattern"]);
 
         // item_history
+        Route::post('/item/create_history', [App\Http\Controllers\ItemHistoryController::class, "create_history"]);
+        Route::post('/item/batchScan', [App\Http\Controllers\ItemHistoryController::class, "batchScan"]);
         Route::get('/item/getHistory/{transId}', [App\Http\Controllers\ItemHistoryController::class, "get_recent_history"]);
+        Route::post('/item/get_all_history', [App\Http\Controllers\ItemHistoryController::class, "get_all_history"]);
         Route::get('/item/report/{transId}', [App\Http\Controllers\ItemHistoryController::class, "export"]);
 
         //product_groups

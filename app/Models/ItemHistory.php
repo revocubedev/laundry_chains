@@ -10,6 +10,29 @@ class ItemHistory extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'item_id',
+        'order_id',
+        'transaction_id',
+        'department_id',
+        'staff_id',
+        'stage',
+        'extra_info',
+        'sending_to',
+        'sent_to_name',
+        'status',
+        'from',
+        'product_id',
+    ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            $model->uuid = Str::uuid()->toString();
+        });
+    }
+
     public function item()
     {
         return $this->belongsTo(Item::class);
@@ -23,23 +46,5 @@ class ItemHistory extends Model
     public function products()
     {
         return $this->belongsTo(Product::class);
-    }
-
-    protected $fillable = [
-        'item_id',
-        'order_id',
-        'transaction_id',
-        'department_id',
-        'staff_id',
-        'stage',
-        'extra_info'
-    ];
-
-    protected static function boot()
-    {
-        parent::boot();
-        static::creating(function ($model) {
-            $model->uuid = Str::uuid()->toString();
-        });
     }
 }
