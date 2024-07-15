@@ -129,5 +129,11 @@ Route::group([
         Route::post('/product_option/add', [App\Http\Controllers\ProductController::class, "add_product_option"])->middleware("staff.permission:create-product");
         Route::post('/product_option/edit/{uuid}', [App\Http\Controllers\ProductController::class, "edit_product_option"])->middleware("staff.permission:create-product");
         Route::delete('/product_option/delete/{uuid}', [App\Http\Controllers\ProductController::class, "delete_product_option"])->middleware("staff.permission:create-product");
+
+        //transaction
+        Route::get('/transactions', [App\Http\Controllers\TransactionController::class, "index"]);
+        Route::get('/transaction/view/{tag_id}', [App\Http\Controllers\TransactionController::class, "view"]);
+        Route::post('/transaction/edit', [App\Http\Controllers\TransactionController::class, "edit"]);
+        Route::post('/transaction/delete', [App\Http\Controllers\TransactionController::class, "delete"]);
     });
 });
