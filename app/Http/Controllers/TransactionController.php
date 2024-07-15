@@ -59,4 +59,15 @@ class TransactionController extends Controller
             "message" => "Transaction deleted successfully"
         ]);
     }
+
+    public function trackItem($tagId)
+    {
+        $data = $this->service->trackItem($tagId);
+
+        return response()->json([
+            "status" => "success",
+            "message" => "Successfully retrieved transaction",
+            "data" => $data
+        ]);
+    }
 }

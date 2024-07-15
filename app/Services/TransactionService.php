@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\NotFoundException;
+use App\Models\Item;
 use App\Models\Transaction;
 
 class TransactionService
@@ -72,5 +73,32 @@ class TransactionService
         $transaction->delete();
 
         return $transaction;
+    }
+
+    public function trackItem($tagId)
+    {
+        $item = Item::where('tagId', 'like', '%' . $tagId . '%')->get();
+
+        $ids = array_map(function ($single) {
+            return $single["id"];
+        }, $item->toArray());
+
+        if (!count($item)) {
+            return [];
+        }
+
+        return Transaction::join('items', 'items.id', '=', 'transactions.item_id')
+            ->join('customers', 'customers.id', '=', 'items.customer_id')
+            ->select(
+                'transactions.*',
+                'customers.full_name',
+                "items.tagId",
+                "items.brand as itemBrand",
+                "items.extra_info as itemInfo",
+                "items.description as itemDescription",
+            )
+            ->whereIn('item_id', $ids)
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 }

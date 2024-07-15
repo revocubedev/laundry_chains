@@ -138,5 +138,8 @@ Route::group([
 
         //Outbound
         Route::post('/outbound/{item_id}', [App\Http\Controllers\OutboundController::class, "handleOrderItems"]);
+
+        //Track Items
+        Route::get('/track/{tagId}', [App\Http\Controllers\TransactionController::class, "trackItem"]);
     });
 });
