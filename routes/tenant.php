@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByPath;
 
@@ -31,6 +29,8 @@ Route::group([
     ], function () {
         Route::post('login', [App\Http\Controllers\Auth\AuthController::class, 'login'])->name('login');
         Route::post('refresh', [App\Http\Controllers\Auth\AuthController::class, 'refresh']);
+        Route::get('reports-trail', [App\Http\Controllers\ReportsController::class, 'generateItemReport']);
+        Route::get('reports-sales', [App\Http\Controllers\ReportsController::class, 'salesReport']);
     });
 
     Route::group([
@@ -152,5 +152,14 @@ Route::group([
         Route::get('/customer/all', [App\Http\Controllers\CustomerController::class, "getAllCustomers"]);
         Route::get('/customer/export', [App\Http\Controllers\CustomerController::class, "exportCustomers"]);
         Route::post('/customer/bulk-upload', [App\Http\Controllers\CustomerController::class, "uploadCustomer"]);
+
+        //Reports 
+        Route::get('/report/locations', [App\Http\Controllers\ReportsController::class, "getTotalNumbers"]);
+        Route::get('/report/departments', [App\Http\Controllers\ReportsController::class, "getGarmentsNumbers"]);
+        Route::get('/report/orders/department', [App\Http\Controllers\ReportsController::class, "totalGarmentsDepartment"]);
+        // Route::get('/report/rewash', [App\Http\Controllers\ReportsController::class, "ItemsInReclean"]);
+        // Route::get('/report/rejected', [App\Http\Controllers\ReportsController::class, "ItemsInDamaged"]);
+        Route::get('/report/individual', [App\Http\Controllers\ReportsController::class, "ItemsByIndividual"]);
+        Route::get('/report/orders', [App\Http\Controllers\ReportsController::class, "totalLeftFactory"]);
     });
 });
