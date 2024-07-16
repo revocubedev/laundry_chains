@@ -93,12 +93,6 @@ class UserController extends Controller
 
     public function export_users()
     {
-        $data = $this->service->export_users();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Users exported successfully',
-            'data' => $data
-        ]);
+        return $this->service->export_users();
     }
 }

@@ -66,12 +66,6 @@ class ItemHistoryController extends Controller
 
     public function export($transId)
     {
-        $data = $this->service->export($transId);
-
-        return response()->json([
-            "status" => "success",
-            "message" => "Data successfully exported",
-            "data" => $data
-        ]);
+        return $this->service->export($transId);
     }
 }

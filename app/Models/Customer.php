@@ -46,7 +46,8 @@ class Customer extends Model
         'private_notes',
         'default_payment',
         'signed_up_date',
-        'discount'
+        'discount',
+        'wallet',
     ];
 
     protected static function boot()

@@ -141,5 +141,16 @@ Route::group([
 
         //Track Items
         Route::get('/track/{tagId}', [App\Http\Controllers\TransactionController::class, "trackItem"]);
+
+        //customers
+        Route::post('/customer/merge', [App\Http\Controllers\CustomerController::class, "mergeCustomer"]);
+        Route::post('/customer/create', [App\Http\Controllers\CustomerController::class, "create"])->middleware("staff.permission:add-customer");
+        Route::post('/customer/edit/{uuid}', [App\Http\Controllers\CustomerController::class, "edit"]);
+        Route::post('/customer/wallet/{uuid}', [App\Http\Controllers\CustomerController::class, "addBalToWallet"])->middleware("staff.permission:fund-wallet");
+        Route::get('/customer/view/{uuid}', [App\Http\Controllers\CustomerController::class, "detail"]);
+        Route::delete('/customer/delete/{uuid}', [App\Http\Controllers\CustomerController::class, "delete"])->middleware("staff.permission:delete-customer");
+        Route::get('/customer/all', [App\Http\Controllers\CustomerController::class, "getAllCustomers"]);
+        Route::get('/customer/export', [App\Http\Controllers\CustomerController::class, "exportCustomers"]);
+        Route::post('/customer/bulk-upload', [App\Http\Controllers\CustomerController::class, "uploadCustomer"]);
     });
 });
