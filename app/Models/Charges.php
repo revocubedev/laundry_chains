@@ -10,6 +10,11 @@ class Charges extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'name',
+        'value',
+    ];
+
     public function transactions()
     {
         return $this->hasMany(Transaction::class);

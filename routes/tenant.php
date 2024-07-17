@@ -178,5 +178,13 @@ Route::group([
         Route::get('/cleaning', [App\Http\Controllers\MetricsController::class, "cleaningPage"]);
         Route::get('/order-finance', [App\Http\Controllers\MetricsController::class, "orderFinances"]);
         Route::get('/wallet-funding', [App\Http\Controllers\MetricsController::class, "walletFunding"]);
+
+        // miscelle
+        Route::post('/discount-types', [App\Http\Controllers\OrderController::class, "createDiscountType"]);
+        Route::patch('/discount-types', [App\Http\Controllers\OrderController::class, "editDiscountType"]);
+        Route::get('/discount-types', [App\Http\Controllers\OrderController::class, "getDiscountTypes"]);
+        Route::post('/charge', [App\Http\Controllers\OrderController::class, "createCharge"]);
+        Route::patch('/charge', [App\Http\Controllers\OrderController::class, "editCharge"]);
+        Route::get('/charge', [App\Http\Controllers\OrderController::class, "getCharges"]);
     });
 });

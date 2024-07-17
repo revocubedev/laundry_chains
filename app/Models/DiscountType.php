@@ -10,6 +10,11 @@ class DiscountType extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'type',
+        'percentage',
+    ];
+
     protected static function boot()
     {
         parent::boot();

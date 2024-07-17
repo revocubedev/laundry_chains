@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Exceptions\NotFoundException;
+use App\Models\Charges;
+use App\Models\DiscountType;
 use App\Models\Order;
 
 class OrderService
@@ -29,5 +32,49 @@ class OrderService
             "unpaidAmount" => $totalUnpaidAmount,
             "totalPieces" => $totalPieces,
         ];
+    }
+
+    public function createDiscountType($data)
+    {
+        return DiscountType::create($data);
+    }
+
+    public function editDiscountType($data)
+    {
+        $discountTypes = DiscountType::find($data['id']);
+        if (!$discountTypes) {
+            throw new NotFoundException('Discount type not found');
+        }
+
+        $discountTypes->update($data);
+
+        return $discountTypes;
+    }
+
+    public function getDiscountTypes()
+    {
+        return DiscountType::all();
+    }
+
+    public function createCharge($data)
+    {
+        return Charges::create($data);
+    }
+
+    public function editCharge($data)
+    {
+        $charge = Charges::find($data['id']);
+        if (!$charge) {
+            throw new NotFoundException('Charge not found');
+        }
+
+        $charge->update($data);
+
+        return $charge;
+    }
+
+    public function getCharges()
+    {
+        return Charges::all();
     }
 }
