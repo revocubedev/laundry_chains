@@ -18,11 +18,11 @@ class OwnCors
     public function handle(Request $request, Closure $next)
     {
 
-        header("Access-Control-Allow-Origin: *");
-
         $headers = [
             'Access-Control-Allow-Methods' => 'POST, GET, OPTIONS, PUT, DELETE',
-            'Access-Control-Allow-Headers' => 'Content-Type, X-Auth-Token, Origin, Authorization, X-BasePath'
+            'Access-Control-Allow-Headers' => 'Content-Type, X-Auth-Token, Origin, Authorization, X-BasePath',
+            "Access-Control-Allow-Origin" =>  "*",
+            'Access-Control-Allow-Credentials' => 'true',
         ];
 
         if ($request->getMethod() == 'OPTIONS') {
@@ -32,7 +32,7 @@ class OwnCors
         $response = $next($request);
 
         foreach ($headers as $key => $value)
-            $response->header($key, $value);
+            $response->headers->set($key, $value);
 
         return $response;
     }

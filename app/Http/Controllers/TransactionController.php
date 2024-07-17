@@ -70,4 +70,42 @@ class TransactionController extends Controller
             "data" => $data
         ]);
     }
+
+    public function ordersPerHour(Request $request)
+    {
+        $data = $this->service->ordersPerHour($request->location);
+
+        return response()->json([
+            "status" => "success",
+            "message" => "Successfully retrieved transactions",
+            "data" => $data
+        ]);
+    }
+
+    public function ordersCompare(Request $request)
+    {
+        $previousPeriod = $request->query('previousPeriod');
+        $lastMonth = $request->query('lastMonth');
+        $lastQuarter = $request->query('lastQuarter');
+        $lastYear = $request->query('lastYear');
+        $startDate = $request->query('start_date_period_2');
+        $endDate = $request->query('end_date_period_2');
+        $limit = $request->query('limit');
+
+        $data = $this->service->ordersCompare(
+            $previousPeriod,
+            $lastMonth,
+            $lastQuarter,
+            $lastYear,
+            $startDate,
+            $endDate,
+            $limit
+        );
+
+        return response()->json([
+            "status" => "success",
+            "message" => "Metrics retrieved successfully",
+            "data" => $data
+        ]);
+    }
 }

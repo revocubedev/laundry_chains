@@ -51,7 +51,7 @@ Route::group([
         Route::patch('/users/{uuid}', [App\Http\Controllers\UserController::class, "edit"]);
         Route::delete('/users/{uuid}', [App\Http\Controllers\UserController::class, "delete"]);
 
-        // Routes
+        // routes
         Route::get('/routes', [App\Http\Controllers\RoutesController::class, "index"]);
         Route::post('/routes', [App\Http\Controllers\RoutesController::class, "create"]);
         Route::patch('/routes/{uuid}', [App\Http\Controllers\RoutesController::class, "edit"]);
@@ -78,7 +78,7 @@ Route::group([
         // roles
         Route::apiResource('roles', App\Http\Controllers\RoleController::class);
 
-        // Delivery Options
+        // delivery options
         Route::post('/delivery', [App\Http\Controllers\DeliveryOptionController::class, "create"]);
         Route::patch('/delivery/{uuid}', [App\Http\Controllers\DeliveryOptionController::class, "edit"]);
         Route::get('/delivery/{uuid}', [App\Http\Controllers\DeliveryOptionController::class, "getOne"]);
@@ -108,14 +108,14 @@ Route::group([
         Route::post('/item/get_all_history', [App\Http\Controllers\ItemHistoryController::class, "get_all_history"]);
         Route::get('/item/report/{transId}', [App\Http\Controllers\ItemHistoryController::class, "export"]);
 
-        //product_groups
+        // product_groups
         Route::get('/product_groups', [App\Http\Controllers\ProductController::class, "get_product_groups"]);
         Route::post('/product_group/add', [App\Http\Controllers\ProductController::class, "add_product_group"])->middleware("staff.permission:create-product");
         Route::post('/product_group/edit/{uuid}', [App\Http\Controllers\ProductController::class, "edit_product_group"])->middleware("staff.permission:create-product");
         Route::get('/product_group/single/{uuid}', [App\Http\Controllers\ProductController::class, "getSingleGroup"]);
         Route::delete('/product_group/{uuid}', [App\Http\Controllers\ProductController::class, "delete_product_group"])->middleware("staff.permission:create-product");
 
-        //products
+        // products
         Route::get('/products', [App\Http\Controllers\ProductController::class, "index"]);
         Route::get('/products/all', [App\Http\Controllers\ProductController::class, "all"]);
         Route::get('/product/view/{uuid}', [App\Http\Controllers\ProductController::class, "getProduct"]);
@@ -123,26 +123,26 @@ Route::group([
         Route::post('/product/edit/{uuid}', [App\Http\Controllers\ProductController::class, "edit"])->middleware("staff.permission:create-product");
         Route::delete('/product/delete/{uuid}', [App\Http\Controllers\ProductController::class, "destroy"])->middleware("staff.permission:create-product");
 
-        //product_options
+        // product_options
         Route::get('/products_option', [App\Http\Controllers\ProductController::class, "getAllProductOption"]);
         Route::get('/product_options/single/{product_id}', [App\Http\Controllers\ProductController::class, "get_product_options"]);
         Route::post('/product_option/add', [App\Http\Controllers\ProductController::class, "add_product_option"])->middleware("staff.permission:create-product");
         Route::post('/product_option/edit/{uuid}', [App\Http\Controllers\ProductController::class, "edit_product_option"])->middleware("staff.permission:create-product");
         Route::delete('/product_option/delete/{uuid}', [App\Http\Controllers\ProductController::class, "delete_product_option"])->middleware("staff.permission:create-product");
 
-        //transaction
+        // transaction
         Route::get('/transactions', [App\Http\Controllers\TransactionController::class, "index"]);
         Route::get('/transaction/view/{tag_id}', [App\Http\Controllers\TransactionController::class, "view"]);
         Route::post('/transaction/edit', [App\Http\Controllers\TransactionController::class, "edit"]);
         Route::post('/transaction/delete', [App\Http\Controllers\TransactionController::class, "delete"]);
 
-        //Outbound
+        // outbound
         Route::post('/outbound/{item_id}', [App\Http\Controllers\OutboundController::class, "handleOrderItems"]);
 
-        //Track Items
+        // track items
         Route::get('/track/{tagId}', [App\Http\Controllers\TransactionController::class, "trackItem"]);
 
-        //customers
+        // customers
         Route::post('/customer/merge', [App\Http\Controllers\CustomerController::class, "mergeCustomer"]);
         Route::post('/customer/create', [App\Http\Controllers\CustomerController::class, "create"])->middleware("staff.permission:add-customer");
         Route::post('/customer/edit/{uuid}', [App\Http\Controllers\CustomerController::class, "edit"]);
@@ -153,7 +153,7 @@ Route::group([
         Route::get('/customer/export', [App\Http\Controllers\CustomerController::class, "exportCustomers"]);
         Route::post('/customer/bulk-upload', [App\Http\Controllers\CustomerController::class, "uploadCustomer"]);
 
-        //Reports 
+        // reports 
         Route::get('/report/locations', [App\Http\Controllers\ReportsController::class, "getTotalNumbers"]);
         Route::get('/report/departments', [App\Http\Controllers\ReportsController::class, "getGarmentsNumbers"]);
         Route::get('/report/orders/department', [App\Http\Controllers\ReportsController::class, "totalGarmentsDepartment"]);
@@ -161,5 +161,22 @@ Route::group([
         // Route::get('/report/rejected', [App\Http\Controllers\ReportsController::class, "ItemsInDamaged"]);
         Route::get('/report/individual', [App\Http\Controllers\ReportsController::class, "ItemsByIndividual"]);
         Route::get('/report/orders', [App\Http\Controllers\ReportsController::class, "totalLeftFactory"]);
+
+        // dashboard
+        Route::get('/order/dashboard-clone', [App\Http\Controllers\OrderController::class, "clone"])->middleware("staff.permission:view-dashboard");
+
+        // metrics & anayltics
+        Route::get('/reportsPerHour', [App\Http\Controllers\TransactionController::class, "ordersPerHour"]);
+        Route::get('/metrics', [App\Http\Controllers\TransactionController::class, "ordersCompare"]);
+        Route::get('/overview-numbers', [App\Http\Controllers\MetricsController::class, "overviewNumbers"])->middleware("staff.permission:view-dashboard");
+        Route::get('/overview', [App\Http\Controllers\MetricsController::class, "dueOrders"]);
+        Route::get('/revenue', [App\Http\Controllers\MetricsController::class, "revenuePage"]);
+        Route::get('/unpaid', [App\Http\Controllers\MetricsController::class, "unpaidPage"]);
+        Route::get('/order-metric', [App\Http\Controllers\MetricsController::class, "orderPage"]);
+        Route::get('/customer-metric', [App\Http\Controllers\MetricsController::class, "customersPage"]);
+        Route::get('/customer-details', [App\Http\Controllers\MetricsController::class, "customersDetails"]);
+        Route::get('/cleaning', [App\Http\Controllers\MetricsController::class, "cleaningPage"]);
+        Route::get('/order-finance', [App\Http\Controllers\MetricsController::class, "orderFinances"]);
+        Route::get('/wallet-funding', [App\Http\Controllers\MetricsController::class, "walletFunding"]);
     });
 });
