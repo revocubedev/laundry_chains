@@ -107,7 +107,6 @@ class UserService
                 'password' => $password,
                 'staff_code' => $code,
                 'companyName' => $currentTenant->organisation_name,
-                'url' => $currentTenant->organisation_url
             ]
         ]);
 

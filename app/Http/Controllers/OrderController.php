@@ -16,6 +16,91 @@ class OrderController extends Controller
         $this->service = $service;
     }
 
+    public function index(Request $request)
+    {
+        $data = $this->service->index(
+            $request->query('per_page'),
+            $request->query('status'),
+            $request->query('location'),
+            $request->query('search_text'),
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Orders successfully retrieved',
+            'data' => $data
+        ]);
+    }
+
+    public function getByOrder($id)
+    {
+        $order = $this->service->getOrderBySerialNumber($id);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Order successfully retrieved',
+            'data' => $order
+        ]);
+    }
+
+    public function getByOrderID($id)
+    {
+        $order = $this->service->getByOrderId($id);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Order successfully retrieved',
+            'data' => $order
+        ]);
+    }
+
+    public function createOrder(Request $request)
+    {
+        $data = $this->service->createOrder($request->all());
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Order successfully created',
+            'data' => $data
+        ]);
+    }
+
+    public function show(Request $request)
+    {
+        $data = $this->service->show(
+            $request->uuid,
+            $request->status
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Order retrieved successfully',
+            'data' => $data
+        ]);
+    }
+
+    public function editOrderItem(Request $request)
+    {
+        $data = $this->service->editOrderItem($request->all());
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Order updated successfully',
+            'data' => $data
+        ]);
+    }
+
+    public function addRack(Request $request, $id)
+    {
+        $data = $this->service->addRack($request->all(), $id);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Rack added successfully',
+            'data' => $data
+        ]);
+    }
+
     public function clone(Request $request)
     {
         $startDate = $request->input('start_date');

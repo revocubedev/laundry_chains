@@ -37,7 +37,6 @@ class Email extends Mailable
 
         return $this->from($FROM_EMAIL, $FROM_NAME)
             ->subject($subject)
-            ->view($template)
-            ->with($content);
+            ->markdown($template, $content);
     }
 }

@@ -21,3 +21,19 @@
 </body>
 
 </html>
+
+@component('mail::message')
+
+Dear {{ $fullName }}<br>
+These are your login info: <br>
+
+@component('mail::panel')
+Email: {{ $email }}
+Password: {{ $password }}<br>
+Staff Code: {{ $staff_code }}
+
+@endcomponent
+
+Thanks,<br>
+{{ $companyName }} Team
+@endcomponent

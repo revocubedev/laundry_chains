@@ -40,4 +40,28 @@ class MailService
 
         $this->send($emailData);
     }
+
+    public function sendCreationNotificationEmail($data)
+    {
+        $emailData = [
+            'to' => $data['to'],
+            'subject' => 'Your Order is created',
+            'template' => 'emails.create_notification',
+            'content' => $data['content'] ?? null,
+        ];
+
+        $this->sendQueue($emailData);
+    }
+
+    public function pickUpEmail($data)
+    {
+        $emailData = [
+            'to' => $data['to'],
+            'subject' => 'Your Order is completed',
+            'template' => 'emails.pickup_notification',
+            'content' => $data['content'] ?? null
+        ];
+
+        $this->sendQueue($emailData);
+    }
 }
