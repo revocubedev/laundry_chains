@@ -92,7 +92,7 @@ class OrderController extends Controller
 
     public function addRack(Request $request, $id)
     {
-        $data = $this->service->addRack($request->all(), $id);
+        $data = $this->service->addRack($request->store_rack, $id);
 
         return response()->json([
             'status' => 'success',

@@ -274,14 +274,12 @@ class OrderService
 
     public function addRack($data, $id)
     {
-        $newData = $data;
-
         $order = Order::find($id);
-        if (!$order) { //Throw Error IF Order Is Not Found
+        if (!$order) {
             throw new NotFoundException('No Order With That ID');
         };
 
-        $order->store_rack = $newData;
+        $order->store_rack = $data;
 
         $user = Customer::where('id', $order->customer_id)->first();
 
