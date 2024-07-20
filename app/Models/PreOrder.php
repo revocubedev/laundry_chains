@@ -10,6 +10,11 @@ class PreOrder extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'customer_id',
+        'items_count'
+    ];
+
     protected static function boot()
     {
         parent::boot();

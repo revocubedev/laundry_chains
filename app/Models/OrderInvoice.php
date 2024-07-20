@@ -10,6 +10,12 @@ class OrderInvoice extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'order_id',
+        'total',
+        'isPaid'
+    ];
+
     protected static function boot()
     {
         parent::boot();

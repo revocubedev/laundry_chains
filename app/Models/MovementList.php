@@ -10,6 +10,14 @@ class MovementList extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        "location_id",
+        "store_rep_id",
+        "driver_id",
+        "order_ids",
+        "total_bags"
+    ];
+
     protected static function boot()
     {
         parent::boot();

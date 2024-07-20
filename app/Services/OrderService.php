@@ -11,8 +11,12 @@ use App\Models\DiscountType;
 use App\Models\Order;
 use App\Models\Location;
 use App\Models\DeliveryOptions;
+use App\Models\Department;
 use App\Models\Item;
+use App\Models\MovementList;
+use App\Models\OrderInvoice;
 use App\Models\PaymentLog;
+use App\Models\PreOrder;
 use App\Models\ProductOption;
 use App\Models\Transaction;
 use Carbon\Carbon;
@@ -190,7 +194,7 @@ class OrderService
             'content' => [
                 'user' => $user,
                 'url' => tenant('organisation_url'),
-                'logo' => tenant(''),
+                'logo' => tenant('organisation_logo'),
                 'order' => $order
             ]
         ]);
@@ -272,9 +276,82 @@ class OrderService
         return $item;
     }
 
-    public function addRack($data, $id)
+    public function edit($data, $uuid)
     {
-        $order = Order::find($id);
+        $paymentType = $data['paymentType'];
+        $customer_id = $data['customer_id'];
+        $staffId  = $data['staffId'];
+        $paidAmount  = $data['paidAmount'];
+        $store_id  = $data['store_id'];
+
+        $order = Order::where('uuid', $uuid)->first();
+        if (!$order) {
+            throw new NotFoundException('No order found');
+        }
+
+        if ((float) $order->paidAmount !== (float) $paidAmount) {
+            $amount = (float) $paidAmount - (float) $order->paidAmount;
+            PaymentLog::create([
+                "customer_id" => $customer_id,
+                "order_id" => $order->id,
+                "amount" => $amount,
+                "method_of_payment" => $paymentType,
+                "location_id" => $store_id,
+                "purpose" => "payment",
+                "user_id" => $staffId,
+            ]);
+        }
+
+        $order->update($data);
+
+        //create each item in the order - use transaction
+        $order_id = $order->id;
+        $order_items = $data['order_items'];
+        $customerId = $order->customer_id;
+        $user = Customer::where('id', $order->customerId)->first();
+
+        if ($order_items != null) {
+            foreach ($order_items as $order_item) {
+                $this->createItem($order_id, $order_item, $customerId, $order);
+            }
+        }
+
+        //Handle discount values
+        $discountPercentage = (float) $data['discount_percentage'];
+        $extraDiscount = (float) $data['extra_discount_percentage'];
+        //Fetch Delivery
+        $deliveryPrice = DeliveryOptions::where('id', $order->delivery_id)->first();
+        //Fetch Old Order and Recalculate 
+        $totalBill = ((float) ($order->bill - (float) $deliveryPrice["amount"]) / (float) $order->extra_discount_percentage) + (float) $order->discount;
+
+        if ($order->discount_percentage != $discountPercentage) {
+            $discountValue = ($discountPercentage / 100) * $totalBill;
+            $order->bill = $totalBill - $discountValue;
+            $order->discount_percentage = $discountPercentage;
+            $order->discount = $discountValue;
+            $order->save();
+        }
+
+        if ($order->extra_discount_percentage != $extraDiscount) {
+            $extraDiscountValue = ($extraDiscount) *  $order->bill;
+            $order->bill =   $extraDiscountValue;
+            $order->extra_discount_percentage = $extraDiscount;
+            $order->extra_discount_value = $extraDiscountValue;
+            $order->save();
+        }
+
+        //Check if paid amount is full, so it can reflect here too
+        if ((int) $order->isPaid) {
+            $order->paidAmount  = 5550000;
+            $order->save();
+        }
+
+        return $order;
+    }
+
+    public function addRack($data, $uuid)
+    {
+        $order = Order::where('uuid', $uuid)->first(0);
         if (!$order) {
             throw new NotFoundException('No Order With That ID');
         };
@@ -288,12 +365,347 @@ class OrderService
             'content' => [
                 'user' => $user,
                 'url' => tenant('organisation_url'),
-                'logo' => tenant(''),
+                'logo' => tenant('organisation_logo'),
                 'order' => $order
             ]
         ]);
 
         $order->save();
+    }
+
+    public function getCustomerOrders($customerId = null, $status = null)
+    {
+        $orders = Order::with('customer', 'location', 'transactions.item.product')
+            ->when($status, function ($query) use ($status, $customerId) {
+                return $query->where(['customer_id' => $customerId, 'status' => $status]);
+            }, function ($query) use ($customerId) {
+                return $query->where('customer_id', $customerId);
+            })
+            ->where("status", "!=", "deleted")
+            ->orderBy('created_at', 'DESC')->get();
+
+        $totalAmountForAllOrders = $orders->sum('bill');
+        $totalPaidAmount = $orders->sum('paidAmount');
+        $allPaid = Order::with('customer', 'location', 'transactions.item.product')
+            ->when($status, function ($query) use ($status, $customerId) {
+                return $query->where(['customer_id' => $customerId, 'is_paid' => true, 'status' => $status]);
+            }, function ($query) use ($customerId) {
+                return $query->where(['customer_id' => $customerId, 'is_paid' => true]);
+            })
+            ->orderBy('created_at', 'DESC')->get();
+        $allUnPaid = Order::with('customer', 'location', 'transactions.item.product')
+            ->when($status, function ($query) use ($status, $customerId) {
+                return $query->where(['customer_id' => $customerId, 'is_paid' => false, 'status' => $status]);
+            }, function ($query) use ($customerId) {
+                return $query->where(['customer_id' => $customerId, 'is_paid' => false]);
+            })
+            ->orderBy('created_at', 'DESC')->get();
+
+        return [
+            "result" => count($orders),
+            "totalAmount" => $totalAmountForAllOrders,
+            "paidAmount" => $totalPaidAmount,
+            "unpaidAmount" => (float)$totalAmountForAllOrders - (float)$totalPaidAmount,
+            "allPaid" => $allPaid,
+            "allUnpaid" => $allUnPaid,
+            "order" => $orders
+        ];
+    }
+
+    public function delete($data, $uuid)
+    {
+        $order = Order::where('uuid', $uuid)->first();
+        if (!$order) {
+            throw new NotFoundException('No order found');
+        }
+
+        if ($order->status == 'ready' || $order->status == 'completed' || $order->status == 'delivered') {
+            throw new BadRequestException('Order is already ready or has been completed');
+        }
+
+        $walletPaymentSum = PaymentLog::where("order_id", $order->id)
+            ->where("method_of_payment", "wallet")
+            ->where("purpose", "payment")
+            ->sum("amount");
+
+        $customer = Customer::find($order->customer_id);
+
+        $order->status = "deleted";
+        $customer->wallet = (float)$customer->wallet + (float)$walletPaymentSum;
+        $customer->save();
+        $order->save();
+
+        //Add to Deleted Records
+        $deletedOrder = new DeletedOrder();
+        $deletedOrder->order_id = $order->id;
+        $deletedOrder->reason = $data['reason'];
+        $deletedOrder->amount_refunded = $walletPaymentSum;
+        $deletedOrder->save();
+    }
+
+    public function dashboard($startDate = null, $endDate = null, $location = null)
+    {
+        $orders = Order::when($startDate != $endDate, function ($query) use ($startDate, $endDate) {
+            return $query->whereBetween('created_at', [$startDate, $endDate]);
+        }, function ($query) use ($startDate) {
+            return $query->whereDate('created_at', $startDate);
+        })
+            ->when($location, function ($query) use ($location) {
+                return $query->where('location_id', $location);
+            })
+            ->get();
+
+        $totalAmountForAllOrders = $orders->sum('bill');
+        $totalPieces = $orders->sum('itemsCount');
+        $totalPaidAmount = $orders->where('is_paid', true)->sum('bill');
+        $totalUnpaidAmount = $orders->where('is_paid', false)->sum('bill');
+
+        return [
+            "result" => count($orders),
+            "totalAmount" => $totalAmountForAllOrders,
+            "paidAmount" => $totalPaidAmount,
+            "unpaidAmount" => $totalUnpaidAmount,
+            "totalPieces" => $totalPieces,
+        ];
+    }
+
+    public function createPreOrder($data)
+    {
+        $preOrder = PreOrder::create([
+            'customer_id' => $data['customer_id'],
+            'items_count' => $data['items_count']
+        ]);
+
+        $storeInfo = Location::where('id', $data["store_id"])->first();
+
+        $previousOrder = Order::where("location_id", $data["store_id"])
+            ->selectRaw('COUNT(*) as orderCount')->first();
+
+        $order = Order::create([
+            'pre_order_code' => $preOrder->id,
+            'customer_id' => $preOrder->customer_id,
+            'itemsCount' => $preOrder->items_count,
+            'isExpress' => $data['isExpress'],
+            'delivery_id' => $data['deliveryId'],
+            'location_id' => $data['store_id'],
+            'dateTimeIn' => Carbon::now(),
+            'dateTimeOut' => $data['dateTimeOut'],
+            'staff_id' => $data['staffId'],
+            'paymentType' => $data['paymentType'],
+            'status' => 'pre-order',
+            'serial_number' => $storeInfo["store_code"] . '-' . ($previousOrder["orderCount"] + 1),
+        ]);
+
+        return [
+            'preorder' => $preOrder,
+            'order' => $order,
+        ];
+    }
+
+    public function createInvoice($data)
+    {
+        return OrderInvoice::create($data);
+    }
+
+    public function editInvoice($data)
+    {
+        $orderInvoice = OrderInvoice::where('id', $data['id'])->first();
+        if (!$orderInvoice) {
+            throw new NotFoundException('No invoice found');
+        }
+
+        $orderInvoice->order_id = $data["orderID"] . "," . $orderInvoice["order_id"] ?? $orderInvoice["order_id"];
+        $orderInvoice->total = $data["total"] ?? $orderInvoice['total'];
+        $orderInvoice->save();
+
+        return $orderInvoice;
+    }
+
+    public function deleteInvoice($data)
+    {
+        $orderInvoice = OrderInvoice::where('id', $data['id'])->first();
+        $orderInvoice->delete();
+    }
+
+    public function allInvoice($status = null)
+    {
+        return OrderInvoice::when($status, function ($query) use ($status) {
+            return $query->where('isPaid', $status);
+        })
+            ->get();
+    }
+
+    //Mark Order As Complete
+    public function markAsPaid($data)
+    {
+        $orderInvoice = OrderInvoice::where('id', $data['id'])->first();
+        $orderInvoice->isPaid = true;
+        $orderInvoice->save();
+
+        //Loop Through the Array And Update Each Order
+        $orderIdsArray = explode(',', $orderInvoice['order_id']);
+        foreach ($orderIdsArray as $orderId) {
+            $cleanOrder = str_replace(' ', '', $orderId);
+            $order = Order::where('uuid', $cleanOrder)->first();
+            $order->status = 'delivered';
+            $order->save();
+        };
+
+        return  [
+            'orderInvoice' => $orderInvoice,
+        ];
+    }
+
+    public function updateByScan($data)
+    {
+        $staff = auth()->user();
+        $departmentId = $data["departmentId"];
+        $orderId = $data["orderId"];
+        $stage = $data["stage"];
+        $staff_id = $data["staffId"];
+        //$staff = User::where('id', $staff_id)->first();
+
+        //Find Deparment
+        $department = Department::where('id', $departmentId)->first();
+
+        if ($department->name !== 'Driver' && $department->name !== 'store') {
+            throw new BadRequestException("You are not permitted to access this function");
+        };
+
+        //Find Order
+        $order = Order::where('id', $orderId)->first();
+        if (!$order) {
+            throw new NotFoundException("Order not found");
+        };
+
+        if ($stage == 'scan-in' && $department->name == 'store') {
+            $order->status = 'completed';
+            $order->staff_marked_cleaned =
+                $order->staff_marked_cleaned . ',' . $staff->fullName;
+            $order->staff_collected_payment =
+                $order->staff_staff_collected_payment . ',' . $staff->fullName;
+        }
+
+        if ($stage == 'scan-out' && $department->name == 'store') {
+            $order->status = 'delivered';
+            $order->dateCollected = Carbon::now();
+        }
+
+        $order->save();
+
+        return $order;
+    }
+
+    public function createMovementList($data)
+    {
+        $movementList = MovementList::create($data);
+
+        //Retrive order id and mark as picked;
+        $order_ids_array = explode(",", $data["order_ids"]);
+
+        foreach ($order_ids_array as $order_id) {
+            $order = Order::where('serial_number', $order_id)->first();
+            $order->isPicked = true;
+            $order->save();
+        }
+
+        return $movementList;
+    }
+
+    public function getMovementList($per_page = 50, $start_date = null, $end_date = null)
+    {
+        $movementList = MovementList::whereBetween('movement_lists.created_at', [$start_date, $end_date])
+            ->join("users as driver", "driver.id", "=", "movement_lists.driver_id")
+            ->join("users as rep", "rep.id", "=", "movement_lists.store_rep_id")
+            ->join("locations", 'locations.id', "=", "movement_lists.location_id")
+            ->select(
+                'movement_lists.*',
+                'driver.fullName as driver_name',
+                'rep.fullName as rep_name',
+                'locations.locationName'
+            )
+            ->paginate($per_page);
+
+        return $movementList;
+    }
+
+    public function getSingleMovementList($data)
+    {
+        $id = $data['id'];
+
+        $movementList = MovementList::where('movement_lists.id', $id)
+            ->join("users as driver", "driver.id", "=", "movement_lists.driver_id")
+            ->join("users as rep", "rep.id", "=", "movement_lists.store_rep_id")
+            ->join("locations", 'locations.id', "=", "movement_lists.location_id")
+            ->select(
+                'movement_lists.*',
+                'driver.fullName as driver_name',
+                'rep.fullName as rep_name',
+                'locations.locationName'
+            )
+            ->first();
+        if (!$movementList) {
+            throw new NotFoundException('No movement list was found');
+        }
+
+        return $movementList;
+    }
+
+    public function markOrderPaid($data)
+    {
+        $isWallet = (bool) $data["isWallet"];
+        $staff_id = $data["staff_id"];
+        $store_id = $data["store_id"];
+        $amount = intval($data["amount"]);
+        $order = Order::where('id', $data["id"])->first();
+
+        if (!$order) {
+            throw new NotFoundException('Order not found');
+        }
+
+        $order->is_paid = true;
+
+        if ($isWallet == true) {
+            $customer = Customer::where("id", $order->customer_id)->first();
+            //Check if wallet can cover payment
+            $walletBal = intval($customer->wallet);
+
+            if ((float)$amount > (float)$walletBal) {
+                throw new BadRequestException('Amount greater than wallet balance');
+            }
+
+            $customer->wallet = $walletBal - $amount;
+            $customer->save();
+        }
+
+        PaymentLog::create([
+            "customer_id" => $order->customer_id,
+            "order_id" => $order->id,
+            "amount" => $amount,
+            "method_of_payment" => $isWallet === true ? 'wallet' : $order->paymentType,
+            "location_id" => $store_id,
+            "purpose" => "payment",
+            "user_id" => $staff_id,
+        ]);
+
+        $order->paidAmount =  $order->paidAmount + $amount;
+        $order->status = 'delivered';
+        $order->dateCollected = Carbon::now();
+        $order->save();
+
+        $user = Customer::where('id', $order->customer_id)->first();
+
+        $this->mailService->completeNotificationEmail([
+            'to' => $user->email,
+            'content' => [
+                'user' => $user,
+                'url' => tenant('organisation_url'),
+                'logo' => tenant('organisation_logo'),
+                'order' => $order
+            ]
+        ]);
+
+        return $order;
     }
 
     public function clone($startDate, $endDate, $location = null)
@@ -411,7 +823,8 @@ class OrderService
 
             if (!$item) {
                 return [
-                    "status" => "error", "message" => "Item with tag id not found"
+                    "status" => "error",
+                    "message" => "Item with tag id not found"
                 ];
             }
         } else {

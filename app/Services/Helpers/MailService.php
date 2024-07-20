@@ -64,4 +64,16 @@ class MailService
 
         $this->sendQueue($emailData);
     }
+
+    public function completeNotificationEmail($data)
+    {
+        $emailData = [
+            'to' => $data['to'],
+            'subject' => 'Your Order has been picked up',
+            'template' => 'emails.completed_notification',
+            'content' => $data['content'] ?? null
+        ];
+
+        $this->sendQueue($emailData);
+    }
 }

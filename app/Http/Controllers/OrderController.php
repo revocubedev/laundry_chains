@@ -2,8 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateInvoiceRequest;
 use Illuminate\Http\Request;
 use App\Services\OrderService;
+use App\Http\Requests\CreateOrderRequest;
+use App\Http\Requests\CreatePreOrderRequest;
+use App\Http\Requests\UpdateInvoiceRequest;
+use App\Http\Requests\UpdateOrderItemRequest;
+use App\Http\Requests\UpdateOrderRequest;
 
 class OrderController extends Controller
 {
@@ -54,13 +60,24 @@ class OrderController extends Controller
         ]);
     }
 
-    public function createOrder(Request $request)
+    public function createOrder(CreateOrderRequest $request)
     {
-        $data = $this->service->createOrder($request->all());
+        $data = $this->service->createOrder($request->validated());
 
         return response()->json([
             'status' => 'success',
             'message' => 'Order successfully created',
+            'data' => $data
+        ]);
+    }
+
+    public function createInvoice(CreateInvoiceRequest $request)
+    {
+        $data = $this->service->createInvoice($request->validated());
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Invoice successfully created',
             'data' => $data
         ]);
     }
@@ -79,9 +96,9 @@ class OrderController extends Controller
         ]);
     }
 
-    public function editOrderItem(Request $request)
+    public function editOrderItem(UpdateOrderItemRequest $request)
     {
-        $data = $this->service->editOrderItem($request->all());
+        $data = $this->service->editOrderItem($request->validated());
 
         return response()->json([
             'status' => 'success',
@@ -90,9 +107,9 @@ class OrderController extends Controller
         ]);
     }
 
-    public function addRack(Request $request, $id)
+    public function addRack(Request $request, $uuid)
     {
-        $data = $this->service->addRack($request->store_rack, $id);
+        $data = $this->service->addRack($request->store_rack, $uuid);
 
         return response()->json([
             'status' => 'success',
@@ -101,11 +118,231 @@ class OrderController extends Controller
         ]);
     }
 
+    public function edit(UpdateOrderRequest $request, $uuid)
+    {
+        $data = $this->service->edit($request->validated(), $uuid);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Order updated successfully',
+            'data' => $data
+        ]);
+    }
+
+    public function getCustomerOrders(Request $request)
+    {
+        $data = $this->service->getCustomerOrders(
+            $request->query('customerId'),
+            $request->query('status'),
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Customer orders returned successfully',
+            'data' => $data
+        ]);
+    }
+
+    public function delete(Request $request, $uuid)
+    {
+        $request->validate([
+            'reason' => 'required|string'
+        ]);
+
+        $this->service->delete($request->only([
+            'reason'
+        ]), $uuid);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Customer order deleted successfully',
+        ]);
+    }
+
+    public function dashboard(Request $request)
+    {
+        $data = $this->service->dashboard(
+            $request->query('startDate'),
+            $request->query('endDate'),
+            $request->query('location')
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Dashboard retrieved successfully',
+            'data' => $data
+        ]);
+    }
+
+    public function createPreOrder(CreatePreOrderRequest $request)
+    {
+        $data = $this->service->createPreOrder($request->validated());
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Order created successfully',
+            'data' => $data
+        ]);
+    }
+
+    public function editInvoice(UpdateInvoiceRequest $request)
+    {
+        $data = $this->service->editInvoice($request->validated());
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Invoice successfully updated',
+            'data' => $data
+        ]);
+    }
+
+    public function deleteInvoice(Request $request)
+    {
+        $request->validate([
+            'id' => 'required'
+        ]);
+
+        $this->service->deleteInvoice($request->only(['id']));
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Invoice successfully created',
+        ]);
+    }
+
+    public function allInvoice(Request $request)
+    {
+        $data = $this->service->allInvoice($request->query('status'));
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Invoice successfully retrieved',
+            'data' => $data
+        ]);
+    }
+
+    public function markAsPaid(Request $request)
+    {
+        $request->validate([
+            'id' => 'required'
+        ]);
+
+        $data = $this->service->markAsPaid($request->only(['id']));
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Invoice returned Successfully',
+            'data' => $data
+        ]);
+    }
+
+    public function updateByScan(Request $request)
+    {
+        $request->validate([
+            'departmentId' => 'required|exists:departments,id',
+            'orderId' => 'required|exists:orders,id',
+            'stage' => 'required|string'
+        ]);
+
+        $data = $this->service->updateByScan($request->only([
+            'departmentId',
+            "orderId",
+            "stage"
+        ]));
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Order updated',
+            'data' => $data
+        ]);
+    }
+
+    public function createMovementList(Request $request)
+    {
+        $request->validate([
+            'locationId' => 'required|exists:locations,id',
+            'storeId' => 'required|exists:users,id',
+            'driverId' => 'required|exists:users,id',
+            'order_ids' => 'required|string',
+            'total_bags' => 'required',
+        ]);
+
+        $data = $this->service->createMovementList($request->only([
+            'locationId',
+            "storeId",
+            "order_ids",
+            "total_bags",
+            "driverId"
+        ]));
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Movement list created',
+            'data' => $data
+        ]);
+    }
+
+    public function getMovementList(Request $request)
+    {
+
+        $data = $this->service->getMovementList(
+            $request->query('per_page'),
+            $request->query('start_date'),
+            $request->query('end_date')
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Movement list returned',
+            'data' => $data
+        ]);
+    }
+
+    public function getSingleMovementList(Request $request)
+    {
+        $request->validate([
+            'id' => 'required'
+        ]);
+
+        $data = $this->service->getSingleMovementList($request->only(['id']));
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Movement list returned Successfully',
+            'data' => $data
+        ]);
+    }
+
+    public function markOrderPaid(Request $request)
+    {
+        $request->validate([
+            'id' => 'required',
+            'isWallet' => 'required|boolean',
+            'store_id' => 'required|exists:locations,id',
+            'staff_id' => 'required|exists:users,id',
+            'amount' => 'required',
+        ]);
+
+        $data = $this->service->markOrderPaid($request->only([
+            'isWallet',
+            "store_id",
+            "staff_id",
+            "amount",
+            "driidverId"
+        ]));
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Order Payment Recorded',
+            'data' => $data
+        ]);
+    }
+
     public function clone(Request $request)
     {
-        $startDate = $request->input('start_date');
-        $endDate = $request->input('end_date');
-        $location = $request->input('location');
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+        $location = $request->query('location');
 
         $data = $this->service->clone($startDate, $endDate, $location);
 

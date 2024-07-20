@@ -10,6 +10,33 @@ class Order extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'customer_id',
+        'location_id',
+        'bill',
+        'dateTimeIn',
+        'dateTimeOut',
+        'note',
+        'status',
+        'discount',
+        'itemsCount',
+        'isExpress',
+        'is_paid',
+        'paidAmount',
+        'staff_id',
+        'paymentType',
+        'delivery_id',
+        'vat',
+        'revenue',
+        'discount_percentage',
+        'extra_discount_value',
+        'extra_discount_id',
+        "extra_discount_percentage",
+        "summary",
+        "serial_number",
+        'pre_order_code'
+    ];
+
     protected static function boot()
     {
         parent::boot();
@@ -71,18 +98,4 @@ class Order extends Model
     {
         return $this->belongsTo(PreOrder::class);
     }
-
-
-    protected $fillable = [
-        'uuid',
-        'customer_id',
-        'bill',
-        'dateTimeIn',
-        'dateTimeOut',
-        'note',
-        'location_id',
-        'itemsCount',
-        'pickUpCode',
-        'status'
-    ];
 }
