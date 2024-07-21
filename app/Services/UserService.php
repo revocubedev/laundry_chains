@@ -71,7 +71,7 @@ class UserService
         return $users;
     }
 
-    public function create($data, $tenant)
+    public function create($data)
     {
         $uppercaseLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $numbers = '0123456789';
@@ -97,8 +97,6 @@ class UserService
 
         $user = User::create($data);
 
-        $currentTenant = Tenant::find($tenant);
-
         $this->mailService->sendStaffAddEmail([
             'to' => $data['email'],
             'content' => [
@@ -106,7 +104,7 @@ class UserService
                 'email' => $data['email'],
                 'password' => $password,
                 'staff_code' => $code,
-                'companyName' => $currentTenant->organisation_name,
+                'companyName' => tenant('organisation_name'),
             ]
         ]);
 

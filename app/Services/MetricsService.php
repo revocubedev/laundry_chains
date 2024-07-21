@@ -73,36 +73,45 @@ class MetricsService
         $overdueOrders = Order::where('orders.status', '!=', 'deleted')
             ->whereDate('dateTimeOut', '<', $currentDate)
             ->leftJoin('customers', 'orders.customer_id', '=', 'customers.id')
-            ->selectRaw('orders.id, customers.full_name,orders.dateTimeOut,orders.paidAmount')
+            ->selectRaw('orders.id, customers.full_name, orders.dateTimeOut,orders.paidAmount')
             ->paginate($limit);
 
         $dueToday = Order::where('orders.status', '!=', 'deleted')
             ->whereDate('dateTimeOut', '=', $currentDate)
             ->leftJoin('customers', 'orders.customer_id', '=', 'customers.id')
-            ->selectRaw('orders.id, customers.full_name,orders.dateTimeOut,orders.paidAmount')
+            ->selectRaw('orders.id, customers.full_name, orders.dateTimeOut,orders.paidAmount')
             ->paginate($limit);
 
         $dueTomorrow = Order::where('orders.status', '!=', 'deleted')
             ->whereDate('dateTimeOut', '=', $currentDate->copy()->addDay())
             ->leftJoin('customers', 'orders.customer_id', '=', 'customers.id')
-            ->selectRaw('orders.id, customers.full_name,orders.dateTimeOut,orders.paidAmount')
+            ->selectRaw('orders.id, customers.full_name, orders.dateTimeOut,orders.paidAmount')
             ->paginate($limit);
 
         $discount = Order::where('orders.status', '!=', 'deleted')
             ->where('orders.discount', '>', 0)
             ->leftJoin('customers', 'orders.customer_id', '=', 'customers.id')
-            ->selectRaw('orders.id, customers.full_name,orders.dateTimeOut,orders.discount')
-            ->groupBy('orders.id')
+            ->selectRaw('orders.id, customers.full_name, orders.dateTimeOut, orders.discount')
+            ->groupBy(
+                'orders.id',
+                'customers.full_name',
+                'orders.dateTimeOut',
+                'orders.discount'
+            )
             ->paginate($limit);
 
         $staffs = Order::where('orders.status', '!=', 'deleted')
             ->leftJoin('users', 'orders.staff_id', '=', 'users.id')
             ->selectRaw(
-                'users.fullName,SUM(paidAmount) as sales, 
+                'users.fullName,
+                SUM(paidAmount) as sales, 
                 SUM(revenue) as revenue, COUNT(CASE WHEN status = "ready" THEN 1 ELSE 0 END) as clean, 
                 COUNT(CASE WHEN status = "completed" THEN 1 ELSE 0 END) as ready'
             )
-            ->groupBy('orders.staff_id')
+            ->groupBy(
+                'orders.staff_id',
+                'users.fullName'
+            )
             ->get();
 
         return [
@@ -153,7 +162,10 @@ class MetricsService
         $unpaidOrders = Order::where('orders.status', '!=', 'deleted')->where('is_paid', 0)
             ->leftJoin('customers', 'orders.customer_id', '=', 'customers.id')
             ->selectRaw('SUM(paidAmount) as total, customers.full_name, COUNT(*) as Orders')
-            ->groupBy('orders.id')
+            ->groupBy(
+                'orders.id',
+                'customers.full_name'
+            )
             ->paginate($limit);
 
         return [

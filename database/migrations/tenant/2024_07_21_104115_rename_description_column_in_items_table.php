@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class RenameColumnInCustomersTable extends Migration
+class RenameDescriptionColumnInItemsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class RenameColumnInCustomersTable extends Migration
      */
     public function up()
     {
-        Schema::table('customers', function (Blueprint $table) {
-            $table->renameColumn('fullName', 'full_name');
+        Schema::table('items', function (Blueprint $table) {
+            $table->renameColumn('decription', 'description');
         });
     }
 
@@ -25,7 +25,7 @@ class RenameColumnInCustomersTable extends Migration
      */
     public function down()
     {
-        Schema::table('customers', function (Blueprint $table) {
+        Schema::table('items', function (Blueprint $table) {
             //
         });
     }

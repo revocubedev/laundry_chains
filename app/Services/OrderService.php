@@ -79,7 +79,7 @@ class OrderService
         return $order;
     }
 
-    public function getByOrderId($id)
+    public function getByOrderId($uuid)
     {
         $order = Order::with(
             'customer',
@@ -89,7 +89,7 @@ class OrderService
             'transactions.item.product_option',
             'user'
         )
-            ->where("id", $id)
+            ->where("uuid", $uuid)
             ->first();
         if (!$order) {
             throw new NotFoundException('Order not found');
@@ -128,17 +128,17 @@ class OrderService
 
         $previousOrder = Order::where("location_id", $data['store_id'])->count();
 
-        [$totalPrice, $revenue] = $this->calcTotalOrderTotalAndRevenue($data['orderItems'], $data['isExpress']);
+        [$totalPrice, $revenue] = $this->calcTotalOrderTotalAndRevenue($data['order_items'], $data['isExpress']);
 
         $customerDiscount = isset($data['discount_percentage']) ? $totalPrice * ($data['discount_percentage'] / 100) : 0;
 
         $data['revenue'] = $revenue;
 
-        $discountAmount = $totalPrice - $customerDiscount;
+        $discountedAmount = $totalPrice - $customerDiscount;
 
         $data['discount'] = $customerDiscount;
 
-        $data['paidAmount'] = (bool) $data['is_paid'] ? $discountAmount * $extraDiscount + (float) $deliveryPrice->amount : $data['paidAmount'];
+        $data['paidAmount'] = (bool) $data['is_paid'] ? $discountedAmount * $extraDiscount + (float) $deliveryPrice->amount : $data['paidAmount'];
 
         $data['vat'] = (7.5 * 100) / $totalPrice;
 
@@ -146,11 +146,19 @@ class OrderService
 
         $data['extra_discount_percentage'] = $extraDiscount;
 
-        $data['extra_discount_value'] = $discountAmount * $extraDiscount;
+        $data['extra_discount_value'] = $discountedAmount * $extraDiscount;
 
         $data['dateTimeIn'] = Carbon::now();
 
-        $data['bill'] = $totalPrice + (float) $deliveryPrice->amount;
+        $data['bill'] = $discountedAmount * $extraDiscount + (float) $deliveryPrice->amount;
+
+        $data['location_id'] = $data['store_id'];
+
+        $data['status'] = "processing";
+
+        $data['staff_id'] = $data['staffId'];
+
+        $data['delivery_id'] = $data['deliveryId'];
 
         if ($data['paymentType'] == 'wallet') {
             if ($customer->wallet < $data['paidAmount']) {
@@ -195,7 +203,8 @@ class OrderService
                 'user' => $user,
                 'url' => tenant('organisation_url'),
                 'logo' => tenant('organisation_logo'),
-                'order' => $order
+                'order' => $order,
+                'companyName' => tenant('organisation_name')
             ]
         ]);
 
@@ -306,45 +315,50 @@ class OrderService
 
         //create each item in the order - use transaction
         $order_id = $order->id;
-        $order_items = $data['order_items'];
         $customerId = $order->customer_id;
-        $user = Customer::where('id', $order->customerId)->first();
 
-        if ($order_items != null) {
-            foreach ($order_items as $order_item) {
+        if (isset($data['order_items'])) {
+            foreach ($data['order_items'] as $order_item) {
                 $this->createItem($order_id, $order_item, $customerId, $order);
             }
         }
 
+        $extra_discount_id = isset($data['extra_discount_id']) ? $data['extra_discount_id'] : $order->extra_discount_id;
+        $discount_percentage = isset($data['discount_percentage']) ? $data['discount_percentage'] : $order->discount_percentage;
+
         //Handle discount values
-        $discountPercentage = (float) $data['discount_percentage'];
-        $extraDiscount = (float) $data['extra_discount_percentage'];
+        $discount = DiscountType::find($extra_discount_id);
+        if (!$discount) {
+            throw new NotFoundException('Discount type not found');
+        }
+
+        $extraDiscount = (float) $discount->percentage;
+
         //Fetch Delivery
         $deliveryPrice = DeliveryOptions::where('id', $order->delivery_id)->first();
+        if (!$deliveryPrice) {
+            throw new NotFoundException('Delivery option not found');
+        }
+
         //Fetch Old Order and Recalculate 
-        $totalBill = ((float) ($order->bill - (float) $deliveryPrice["amount"]) / (float) $order->extra_discount_percentage) + (float) $order->discount;
+        $initialOrderItemBill = ((float) ($order->bill - (float) $deliveryPrice["amount"]) / (float) $order->extra_discount_percentage) + (float) $order->discount;
 
-        if ($order->discount_percentage != $discountPercentage) {
-            $discountValue = ($discountPercentage / 100) * $totalBill;
-            $order->bill = $totalBill - $discountValue;
-            $order->discount_percentage = $discountPercentage;
-            $order->discount = $discountValue;
-            $order->save();
-        }
-
-        if ($order->extra_discount_percentage != $extraDiscount) {
-            $extraDiscountValue = ($extraDiscount) *  $order->bill;
-            $order->bill =   $extraDiscountValue;
-            $order->extra_discount_percentage = $extraDiscount;
-            $order->extra_discount_value = $extraDiscountValue;
-            $order->save();
-        }
+        $discountPrice = $initialOrderItemBill * ($discount_percentage / 100);
+        $discountedAmount = $initialOrderItemBill - $discountPrice;
+        $order->discount_percentage = $discount_percentage;
+        $order->discount = $discountPrice;
+        $order->extra_discount_percentage = $extraDiscount;
+        $order->extra_discount_value = $discountedAmount * $extraDiscount;
+        $order->bill = $discountedAmount * $extraDiscount + $deliveryPrice->amount;
+        $order->paidAmount = isset($data['is_paid']) ? $discountedAmount * $extraDiscount + $deliveryPrice->amount : (isset($data['paidAmount']) ? $data['paidAmount'] : $order->paidAmount);
 
         //Check if paid amount is full, so it can reflect here too
         if ((int) $order->isPaid) {
             $order->paidAmount  = 5550000;
             $order->save();
         }
+
+        $order->save();
 
         return $order;
     }
@@ -366,7 +380,8 @@ class OrderService
                 'user' => $user,
                 'url' => tenant('organisation_url'),
                 'logo' => tenant('organisation_logo'),
-                'order' => $order
+                'order' => $order,
+                'companyName' => tenant('organisation_name')
             ]
         ]);
 
@@ -472,7 +487,7 @@ class OrderService
     public function createPreOrder($data)
     {
         $preOrder = PreOrder::create([
-            'customer_id' => $data['customer_id'],
+            'customer_id' => $data['customerId'],
             'items_count' => $data['items_count']
         ]);
 
@@ -562,8 +577,6 @@ class OrderService
         $departmentId = $data["departmentId"];
         $orderId = $data["orderId"];
         $stage = $data["stage"];
-        $staff_id = $data["staffId"];
-        //$staff = User::where('id', $staff_id)->first();
 
         //Find Deparment
         $department = Department::where('id', $departmentId)->first();
@@ -598,13 +611,19 @@ class OrderService
 
     public function createMovementList($data)
     {
-        $movementList = MovementList::create($data);
+        $movementList = MovementList::create([
+            'driver_id' => $data['driverId'],
+            'store_rep_id' => $data['storeId'],
+            'location_id' => $data['locationId'],
+            'order_ids' => $data['order_ids'],
+            'total_bags' => $data['total_bags'],
+        ]);
 
         //Retrive order id and mark as picked;
         $order_ids_array = explode(",", $data["order_ids"]);
 
         foreach ($order_ids_array as $order_id) {
-            $order = Order::where('serial_number', $order_id)->first();
+            $order = Order::where('id', $order_id)->first();
             $order->isPicked = true;
             $order->save();
         }
@@ -629,10 +648,8 @@ class OrderService
         return $movementList;
     }
 
-    public function getSingleMovementList($data)
+    public function getSingleMovementList($id)
     {
-        $id = $data['id'];
-
         $movementList = MovementList::where('movement_lists.id', $id)
             ->join("users as driver", "driver.id", "=", "movement_lists.driver_id")
             ->join("users as rep", "rep.id", "=", "movement_lists.store_rep_id")
@@ -654,7 +671,7 @@ class OrderService
     public function markOrderPaid($data)
     {
         $isWallet = (bool) $data["isWallet"];
-        $staff_id = $data["staff_id"];
+        $staff_id = auth()->id();
         $store_id = $data["store_id"];
         $amount = intval($data["amount"]);
         $order = Order::where('id', $data["id"])->first();
@@ -701,7 +718,8 @@ class OrderService
                 'user' => $user,
                 'url' => tenant('organisation_url'),
                 'logo' => tenant('organisation_logo'),
-                'order' => $order
+                'order' => $order,
+                'companyName' => tenant('organisation_name')
             ]
         ]);
 
@@ -790,24 +808,24 @@ class OrderService
 
         if ($isExpress) {
             foreach ($orderItems as $item) {
-                $charge = Charges::find($orderItems['charge_id']);
+                $charge = Charges::find($item['charge_id']);
                 $totalPrice += (int) $item['expressPrice'] + (int) $charge->value;
             }
         } else {
             foreach ($orderItems as $item) {
-                $charge = Charges::find($orderItems['charge_id']);
+                $charge = Charges::find($item['charge_id']);
                 $totalPrice += (int) $item['price'] + (int) $charge->value;
             }
         }
 
         if ($isExpress) {
             foreach ($orderItems as $item) {
-                $charge = Charges::find($orderItems['charge_id']);
+                $charge = Charges::find($item['charge_id']);
                 $revenue += (int) $item['expressPrice'] + (int) $charge->value - (int) $item['cost_price'];
             }
         } else {
             foreach ($orderItems as $item) {
-                $charge = Charges::find($orderItems['charge_id']);
+                $charge = Charges::find($item['charge_id']);
                 $revenue += (int) $item['price'] + (int) $charge->value - (int) $item['cost_price'];
             }
         }
@@ -871,7 +889,7 @@ class OrderService
                         'product_id' => $order_item['product_id'],
                         'location_id' => $order->location_id,
                         'charge_id' => $order_item['charge_id'],
-                        'price' => isset($order_item['isEdited']) && $this->is_true($order_item['isEdited'])  ? $order_item['price'] : null,
+                        'price' => isset($order_item['isEdited']) && $this->is_true($order_item['isEdited']) ? $order_item['price'] : 0,
                         'status' => 'processing',
                         'number' => $index,
                     ]);

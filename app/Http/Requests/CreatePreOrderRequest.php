@@ -24,13 +24,13 @@ class CreatePreOrderRequest extends FormRequest
     public function rules()
     {
         return [
-            'customer_id' => 'required|numeric|exists:customers,id',
+            'customerId' => 'required|numeric|exists:customers,id',
             'items_count' => 'required|numeric',
             'store_id' => 'required|numeric|exists:locations,id',
             'isExpress' => 'required|boolean',
             'deliveryId' => 'required|numeric|exists:delivery_options,id',
             'dateTimeOut' => 'required',
-            'staff_id' => 'required|numeric|exists:users,id',
+            'staffId' => 'required|numeric|exists:users,id',
             'paymentType' => 'required|string',
         ];
     }

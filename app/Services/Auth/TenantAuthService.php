@@ -69,7 +69,7 @@ class TenantAuthService
 
         $tenant->run(function () use ($tenant, $code, $data) {
             User::create([
-                'full_name' => $tenant->full_name,
+                'fullName' => $tenant->full_name,
                 'email' => $tenant->email,
                 'password' => bcrypt($data['password']),
                 'role' => 'admin',

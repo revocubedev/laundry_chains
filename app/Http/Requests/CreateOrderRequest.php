@@ -43,6 +43,7 @@ class CreateOrderRequest extends FormRequest
             'extra_discount_percentage' => 'nullable',
             'extra_discount_value' => 'nullable',
             'summary' => 'nullable',
+            'extra_discount_id' => 'nullable|exists:discount_types,id',
         ];
     }
 }

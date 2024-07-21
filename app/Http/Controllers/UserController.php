@@ -49,8 +49,7 @@ class UserController extends Controller
 
     public function create(CreateStaffRequest $request)
     {
-        $tenant = explode('/', $request->path())[0];
-        $data = $this->service->create($request->validated(), $tenant);
+        $data = $this->service->create($request->validated());
 
         return response()->json([
             'status' => 'success',

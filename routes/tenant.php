@@ -194,11 +194,11 @@ Route::group([
         Route::post('/order/create', [App\Http\Controllers\OrderController::class, "createOrder"]);
         Route::get('/order', [App\Http\Controllers\OrderController::class, "show"]);
         Route::post('/order/edit-item', [App\Http\Controllers\OrderController::class, "editOrderItem"]);
-        Route::get('/get-order/{id}', [App\Http\Controllers\OrderController::class, "getByOrder"]);
-        Route::get('/order-by-id/{id}', [App\Http\Controllers\OrderController::class, "getByOrderID"]);
+        Route::get('/get-order/{uuid}', [App\Http\Controllers\OrderController::class, "getByOrder"]);
+        Route::get('/order-by-id/{uuid}', [App\Http\Controllers\OrderController::class, "getByOrderID"]);
         Route::get('/all_order', [App\Http\Controllers\OrderController::class, "index"]);
-        Route::post('/order/edit/{id}', [App\Http\Controllers\OrderController::class, "edit"])->middleware("staff.permission:edit-order");
-        Route::delete('/order/delete/{id}', [App\Http\Controllers\OrderController::class, "delete"])->middleware("staff.permission:delete-order");
+        Route::post('/order/edit/{uuid}', [App\Http\Controllers\OrderController::class, "edit"])->middleware("staff.permission:edit-order");
+        Route::delete('/order/delete/{uuid}', [App\Http\Controllers\OrderController::class, "delete"])->middleware("staff.permission:delete-order");
         Route::get('/order/customer', [App\Http\Controllers\OrderController::class, "getCustomerOrders"]);
         Route::post('/order/preorder', [App\Http\Controllers\OrderController::class, "createPreOrder"]);
         Route::post('/order/make-payment', [App\Http\Controllers\OrderController::class, "markOrderPaid"]);
@@ -207,7 +207,7 @@ Route::group([
         Route::delete('/order/invoice', [App\Http\Controllers\OrderController::class, "deleteInvoice"]);
         Route::get('/order/invoice', [App\Http\Controllers\OrderController::class, "allInvoice"]);
         Route::post('/order/invoice/mark', [App\Http\Controllers\OrderController::class, "markAsPaid"]);
-        Route::post('/order/rack/add/{id}', [App\Http\Controllers\OrderController::class, "addRack"]);
+        Route::post('/order/rack/add/{uuid}', [App\Http\Controllers\OrderController::class, "addRack"]);
         Route::get('/order/generate-code/{order_id}', [App\Http\Controllers\ItemController::class, "generateOrderCode"]);
         Route::post('/update-scan', [App\Http\Controllers\OrderController::class, "updateByScan"]);
     });

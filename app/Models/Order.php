@@ -34,7 +34,8 @@ class Order extends Model
         "extra_discount_percentage",
         "summary",
         "serial_number",
-        'pre_order_code'
+        'pre_order_code',
+        'extra_discount_id',
     ];
 
     protected static function boot()
@@ -49,6 +50,7 @@ class Order extends Model
     {
         return $this->hasMany(Transaction::class);
     }
+
     public function items()
     {
         return $this->hasMany(Item::class);

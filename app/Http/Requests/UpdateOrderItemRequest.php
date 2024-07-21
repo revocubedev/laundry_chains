@@ -24,6 +24,7 @@ class UpdateOrderItemRequest extends FormRequest
     public function rules()
     {
         return [
+            'itemId' => 'required|exists:items,id',
             'notes' => 'nullable|string',
             'brand' => 'nullable|string',
             'extra_info' => 'nullable|string'

@@ -241,7 +241,7 @@ class OrderController extends Controller
         $request->validate([
             'departmentId' => 'required|exists:departments,id',
             'orderId' => 'required|exists:orders,id',
-            'stage' => 'required|string'
+            'stage' => 'required|string',
         ]);
 
         $data = $this->service->updateByScan($request->only([
@@ -300,11 +300,7 @@ class OrderController extends Controller
 
     public function getSingleMovementList(Request $request)
     {
-        $request->validate([
-            'id' => 'required'
-        ]);
-
-        $data = $this->service->getSingleMovementList($request->only(['id']));
+        $data = $this->service->getSingleMovementList($request->query('id'));
 
         return response()->json([
             'status' => 'success',
@@ -319,16 +315,14 @@ class OrderController extends Controller
             'id' => 'required',
             'isWallet' => 'required|boolean',
             'store_id' => 'required|exists:locations,id',
-            'staff_id' => 'required|exists:users,id',
             'amount' => 'required',
         ]);
 
         $data = $this->service->markOrderPaid($request->only([
             'isWallet',
             "store_id",
-            "staff_id",
             "amount",
-            "driidverId"
+            "id"
         ]));
 
         return response()->json([

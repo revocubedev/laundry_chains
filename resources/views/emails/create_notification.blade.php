@@ -11,7 +11,7 @@ Your order has been successfully created.<br><br>
 Order Number: {{$order['serial_number']}}<br>
 Number of Pieces: {{$order['itemsCount']}}<br>
 Estimated Pickup Date: {{$order['dateTimeOut']}}<br>
-Balance Due: {{money_format("NGN %i",$order['bill'] - $order['paidAmount'])}}
+Balance Due: ₦ {{ ($order['bill'] - $order['paidAmount']) }}
 @endcomponent
 
 ITEM SUMMARY<br>
