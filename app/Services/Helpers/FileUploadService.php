@@ -24,10 +24,10 @@ class FileUploadService
 
     protected function uploadToLocal($file, $path)
     {
-        $fileName = Date::now()->format('YmdHis') . '-' . Uuid::uuid4()->toString() . '-' . trim(preg_replace('/\s+/', '-', $file->getClientOriginalName()));
+        $fileName = time() . '-' . trim(preg_replace('/\s+/', '-', $file->getClientOriginalName()));
         $filePath = $file->storeAs($path, $fileName);
 
-        return $filePath;
+        return asset($filePath);
     }
 
     public function upload($file, $path)

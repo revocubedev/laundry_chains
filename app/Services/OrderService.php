@@ -313,16 +313,6 @@ class OrderService
 
         $order->update($data);
 
-        //create each item in the order - use transaction
-        $order_id = $order->id;
-        $customerId = $order->customer_id;
-
-        if (isset($data['order_items'])) {
-            foreach ($data['order_items'] as $order_item) {
-                $this->createItem($order_id, $order_item, $customerId, $order);
-            }
-        }
-
         $extra_discount_id = isset($data['extra_discount_id']) ? $data['extra_discount_id'] : $order->extra_discount_id;
         $discount_percentage = isset($data['discount_percentage']) ? $data['discount_percentage'] : $order->discount_percentage;
 
@@ -351,12 +341,7 @@ class OrderService
         $order->extra_discount_value = $discountedAmount * $extraDiscount;
         $order->bill = $discountedAmount * $extraDiscount + $deliveryPrice->amount;
         $order->paidAmount = isset($data['is_paid']) ? $discountedAmount * $extraDiscount + $deliveryPrice->amount : (isset($data['paidAmount']) ? $data['paidAmount'] : $order->paidAmount);
-
-        //Check if paid amount is full, so it can reflect here too
-        if ((int) $order->isPaid) {
-            $order->paidAmount  = 5550000;
-            $order->save();
-        }
+        $order->is_paid = isset($data['paidAmount']) && $data['paidAmount'] == $order->bill ? true : false;
 
         $order->save();
 
@@ -835,7 +820,7 @@ class OrderService
 
     private function createItem($order_id, $order_item, $customerId, $order)
     {
-        if ($order_item['tag_id']) {  //item has an existing tag
+        if ($order_item['tag_id']) {
             $tag_id = $order_item["tag_id"];
             $item = Item::where('tagId', $tag_id)->first();
 
@@ -848,6 +833,8 @@ class OrderService
         } else {
             //Item does not have a tag
             //Find The Product Option Count
+            $items = [];
+
             $product_option = ProductOption::where("id", $order_item["product_option_id"])->first();
             if ($product_option) {
                 $pieceCount = $product_option->pieces ?? 1; // Assuming 'pieces' is the property that holds the number of pieces
@@ -895,6 +882,8 @@ class OrderService
                     ]);
                 }
             }
+
+            return ["status" => "success", "item" => $items];
         }
 
         return ["status" => "success", "item" => $item];

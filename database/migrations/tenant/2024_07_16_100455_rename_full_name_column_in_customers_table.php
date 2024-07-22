@@ -13,9 +13,9 @@ class RenameFullNameColumnInCustomersTable extends Migration
      */
     public function up()
     {
-        Schema::table('customers', function (Blueprint $table) {
-            $table->renameColumn('fullName', 'full_name');
-        });
+        // Schema::table('customers', function (Blueprint $table) {
+        //     $table->renameColumn('fullName', 'full_name');
+        // });
     }
 
     /**
